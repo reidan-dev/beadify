@@ -1,0 +1,163 @@
+# Beadify color palette
+# Format: label: "#RRGGBB" # Description
+
+# --- A Group: Bright Yellows, Warm Oranges, and Highlights ---
+A1: "#FFF9C4" # Pale Primrose
+A2: "#FFF9C4" # Light Cream
+A3: "#E3E58D" # Soft Pastel Yellow-Green
+A4: "#F7E94E" # Bright Canary Yellow
+A5: "#FFD54F" # Bright Maize
+A6: "#F7C934" # Golden Yellow
+A7: "#F88F3A" # Vivid Orange
+A8: "#FFC107" # Amber Yellow
+A9: "#FF8A65" # Deep Peach
+A10: "#FF8D3E" # Carrot Orange
+A11: "#F6DE8F" # Sunflower Yellow
+A12: "#FFAB91" # Pale Coral
+A13: "#FFAC47" # Tangerine Yellow
+A14: "#F86E63" # Salmon Red
+A15: "#E2FF42" # Neon Lime Yellow
+
+# --- B Group: Diverse Greens, Teals, and Forest Tones ---
+B1: "#AED581" # Soft Apple Green
+B2: "#81C784" # Light Grass Green
+B3: "#A2E4B8" # Light Mint Green
+B4: "#66BB6A" # Mid-Tone Leaf Green
+B5: "#83D68B" # Spring Green
+B6: "#4DB6AC" # Teal Mint
+B7: "#4D9A8D" # Deep Forest Teal
+B8: "#59B981" # Bright Clover Green
+B10: "#89D1C2" # Seafoam Green
+B11: "#607D8B" # Blue-Grey Moss
+B12: "#62A78F" # Deep Pine Green
+B13: "#C5E1A5" # Pale Pistachio Green
+B14: "#A0D558" # Pear Green
+B15: "#2E7D32" # Forest Green
+B16: "#A5D6A7" # Pale Sage Green
+B17: "#89A74E" # Dark Olive Green
+B18: "#CEE25F" # Lime Yellow
+B19: "#71D0A8" # Ocean Teal
+B20: "#C7E6CD" # Icy Mint Green
+
+# --- C Group: Cool Sky Blues, Aquas, and Deep Navies ---
+C1: "#B2DFDB" # Soft Aquamarine
+C2: "#B9E9E6" # Pale Turquoise
+C3: "#92CCEF" # Pastel Sky Blue
+C4: "#64B5F6" # Cornflower Blue
+C5: "#60B2E4" # Bright Sky Blue
+C6: "#66ADF4" # Deep Sky Blue
+C7: "#468BF2" # Cobalt Blue
+C8: "#3B81D3" # Royal Blue
+C9: "#1976D2" # Vivid Royal Blue
+C10: "#75CCE4" # Robin's Egg Blue
+C11: "#59C1CC" # Dark Cyan
+C13: "#B6D7F1" # Baby Blue
+C14: "#E1F5FE" # Very Pale Blue
+C15: "#26C6DA" # Bright Turquoise
+C16: "#3F64A0" # Deep Navy Blue
+C17: "#4FC3F7" # Bright Sky Blue
+
+# --- D Group: Purples, Lavenders, and Indigo Shades ---
+D1: "#7986CB" # Soft Denim Blue
+D2: "#7697DE" # Denim Blue
+D3: "#2B5EB5" # Navy Blue
+D5: "#8D4EA8" # Dark Fuchsia Purple
+D6: "#987DE3" # Medium Purple
+D7: "#6C48B9" # Deep Violet
+D8: "#B9AEE2" # Hint of Lilac
+D9: "#B19FE5" # Soft Lavender
+D11: "#99A9E3" # Dusty Blue
+D12: "#A98CCF" # Mauve Pink
+D13: "#AD40B7" # Raspberry Purple
+D14: "#6C40A3" # Plum Purple
+D15: "#504EBA" # Midnight Purple
+D16: "#BCCBE8" # Periwinkle White
+D17: "#9FA8DA" # Periwinkle Blue
+D18: "#8B6AD4" # Amethyst Purple
+D19: "#B2A4E2" # Pale Orchid
+D20: "#8558D1" # Bright Orchid
+D21: "#723EAE" # Deep Indigo
+
+# --- E Group: Vibrant Pinks, Magentas, and Soft Creams ---
+E1: "#EAB7B2" # Hint of Rose
+E2: "#E8B2E4" # Bubblegum Pink
+E3: "#E98BC5" # Deep Rose
+E4: "#E76FB2" # Hot Pink
+E5: "#E552AF" # Punch Pink
+E6: "#E83CA6" # Maroon Pink
+E7: "#B12D75" # Burgundy / Beetroot
+E8: "#ECC6D6" # Cotton Candy Pink
+E9: "#CB76DA" # Deep Pinkish Purple
+E10: "#B636A6" # Wine Red
+E11: "#E6D6C6" # Warm White / Cream
+E12: "#E880CD" # Carnation Pink
+E13: "#B6419E" # Dark Magenta
+E14: "#E8CCBC" # Pale Custard
+E15: "#E5B8BA" # Cherry Blossom Pink
+
+# --- F Group: Primary Reds, Corals, and Earthy Red-Browns ---
+F1: "#F8857D" # Pale Melon
+F2: "#F46E60" # Persimmon Orange
+F3: "#F05F55" # Safety Orange
+F4: "#BC3637" # Deep Rust
+F5: "#CE356C" # Classic Red
+F6: "#874332" # Mahogany
+F7: "#AE3E5B" # Brick Red
+F8: "#C13357" # Crimson Red
+F9: "#BF708E" # Flamingo Pink
+F10: "#B86657" # Burnt Orange
+F11: "#7D4E41" # Earth Brown
+F12: "#F44B74" # Candy Red
+F13: "#EB5D47" # Vermilion
+F14: "#E39A9A" # Light Coral
+
+# --- G Group: Warm Neutrals, Peaches, and Toasted Earth Tones ---
+G1: "#F7DDBE" # Creamy Off-White
+G2: "#E8B289" # Champagne / Shell
+G3: "#D9A97B" # Light Creamsicle
+G4: "#FFCC80" # Apricot Peach
+G5: "#E5A44E" # Soft Orange / Apricot
+G6: "#FF7043" # Bright Terra Cotta
+G7: "#9F704F" # Taupe / Light Brown
+G8: "#78584F" # Dark Espresso Brown
+G9: "#F2B877" # Light Salmon
+G10: "#FFB74D" # Muted Orange
+G11: "#FFF59D" # Soft Butter Yellow
+G12: "#FFE082" # Flaxen Yellow
+G13: "#E08F6B" # Warm Copper
+G14: "#9C816E" # Beaver Brown
+G15: "#E8F5E9" # Mint Cream
+G16: "#F5F5DC" # Beige
+G17: "#635D55" # Black Coffee Brown
+
+# --- H Group: Greyscale Neutrals and Desaturated Accents ---
+H2: "#FFFFFF" # Pure White
+H3: "#A0A1A5" # Silver / Light Grey
+H4: "#7C7E82" # Medium Slate Grey
+H5: "#4F5157" # Charcoal Grey
+H6: "#4B534E" # Off-Black / Onyx
+H7: "#000000" # Solid Black
+H8: "#F1DFF1" # Dusty Lilac
+H9: "#E0E0E0" # Platinum Grey
+H10: "#E1BEE7" # Soft Lavender
+H11: "#CFD8DC" # Blue-Grey Pearl
+H12: "#F5F5DC" # Beige / Eggshell
+H13: "#EFEBE9" # Linen / Bone
+H14: "#BDBDBD" # Silver Grey
+
+# --- M Group: Muted Dusty Tones and Industrial Greys ---
+M1: "#CFD8DC" # Cool Ash Grey
+M2: "#C8E6C9" # Pale Sage
+M3: "#90A4AE" # Slate Blue-Grey
+M4: "#D7CCC8" # Warm Sand
+M5: "#B9BC9E" # Rosy Taupe
+M6: "#9C9477" # Warm Grey
+M7: "#BCAAA4" # Rosy Taupe (Warm)
+M8: "#A1887F" # Warm Mushroom
+M9: "#B19B81" # Chestnut Brown
+M10: "#B39DDB" # Muted Amethyst
+M11: "#9575CD" # Heather Purple
+M12: "#6C6360" # Dark Umber
+M13: "#D8AD91" # Dusty Terracotta
+M14: "#E57373" # Dusty Coral
+M15: "#9E9E9E" # Flat Grey

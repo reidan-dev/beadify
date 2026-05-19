@@ -1,0 +1,157 @@
+# Beadify color palette - Grouped by Selection
+# Format: label: "#RRGGBB" # Description
+
+group_1:
+  B3: "#A2E4B8" # Light Mint Green
+  C3: "#92CCEF" # Pastel Sky Blue
+  D9: "#B19FE5" # Soft Lavender
+  E2: "#E8B2E4" # Bubblegum Pink
+  G1: "#F7DDBE" # Creamy Off-White
+  A4: "#F7E94E" # Bright Canary Yellow
+  B5: "#83D68B" # Spring Green
+  C5: "#60B2E4" # Bright Sky Blue
+  D6: "#987DE3" # Medium Purple
+  E4: "#E76FB2" # Hot Pink
+  G5: "#E5A44E" # Soft Orange / Apricot
+  A6: "#F7C934" # Golden Yellow
+  B8: "#59B981" # Bright Clover Green
+  C8: "#3B81D3" # Royal Blue
+  D7: "#6C48B9" # Deep Violet
+  F5: "#CE356C" # Classic Red
+  G7: "#9F704F" # Taupe / Light Brown
+  A7: "#F88F3A" # Vivid Orange
+  H2: "#FFFFFF" # Pure White
+  H3: "#A0A1A5" # Silver / Light Grey
+  H4: "#7C7E82" # Medium Slate Grey
+  H5: "#4F5157" # Charcoal Grey
+  H7: "#000000" # Solid Black
+
+group_2:
+  C2: "#B9E9E6" # Pale Turquoise
+  C13: "#B6D7F1" # Baby Blue
+  D19: "#B2A4E2" # Pale Orchid
+  E8: "#ECC6D6" # Cotton Candy Pink
+  A13: "#FFAC47" # Tangerine Yellow
+  A11: "#F6DE8F" # Sunflower Yellow
+  C10: "#75CCE4" # Robin's Egg Blue
+  C6: "#66ADF4" # Deep Sky Blue
+  D18: "#8B6AD4" # Amethyst Purple
+  E3: "#E98BC5" # Deep Rose
+  A10: "#FF8D3E" # Carrot Orange
+  G9: "#F2B877" # Light Salmon
+  C11: "#59C1CC" # Dark Cyan
+  C7: "#468BF2" # Cobalt Blue
+  D21: "#723EAE" # Deep Indigo
+  D13: "#AD40B7" # Raspberry Purple
+  F13: "#EB5D47" # Vermilion
+  G13: "#E08F6B" # Warm Copper
+  B12: "#62A78F" # Deep Pine Green
+  D3: "#2B5EB5" # Navy Blue
+  D15: "#504EBA" # Midnight Purple
+  E7: "#B12D75" # Burgundy / Beetroot
+  F8: "#C13357" # Crimson Red
+  G8: "#78584F" # Dark Espresso Brown
+
+group_3:
+  A3: "#E3E58D" # Soft Pastel Yellow-Green
+  B20: "#C7E6CD" # Icy Mint Green
+  D16: "#BCCBE8" # Periwinkle White
+  D8: "#B9AEE2" # Hint of Lilac
+  E1: "#EAB7B2" # Hint of Rose
+  G2: "#E8B289" # Champagne / Shell
+  B18: "#CEE25F" # Lime Yellow
+  B10: "#89D1C2" # Seafoam Green
+  D11: "#99A9E3" # Dusty Blue
+  D12: "#A98CCF" # Mauve Pink
+  E12: "#E880CD" # Carnation Pink
+  G3: "#D9A97B" # Light Creamsicle
+  B14: "#A0D558" # Pear Green
+  B19: "#71D0A8" # Ocean Teal
+  D2: "#7697DE" # Denim Blue
+  D20: "#8558D1" # Bright Orchid
+  E5: "#E552AF" # Punch Pink
+  F10: "#B86657" # Burnt Orange
+  B17: "#89A74E" # Dark Olive Green
+  B7: "#4D9A8D" # Deep Forest Teal
+  C16: "#3F64A0" # Deep Navy Blue
+  D14: "#6C40A3" # Plum Purple
+  E13: "#B6419E" # Dark Magenta
+  F7: "#AE3E5B" # Brick Red
+
+group_4:
+  E11: "#E6D6C6" # Warm White / Cream
+  E14: "#E8CCBC" # Pale Custard
+  F1: "#F8857D" # Pale Melon
+  A14: "#F86E63" # Salmon Red
+  M6: "#9C9477" # Warm Grey
+  M5: "#B9BC9E" # Rosy Taupe
+  E15: "#E5B8BA" # Cherry Blossom Pink
+  F14: "#E39A9A" # Light Coral
+  F9: "#BF708E" # Flamingo Pink
+  F2: "#F46E60" # Persimmon Orange
+  G14: "#9C816E" # Beaver Brown
+  M9: "#B19B81" # Chestnut Brown
+  E9: "#CB76DA" # Deep Pinkish Purple
+  E6: "#E83CA6" # Maroon Pink
+  F12: "#F44B74" # Candy Red
+  F3: "#F05F55" # Safety Orange
+  F11: "#7D4E41" # Earth Brown
+  M12: "#6C6360" # Dark Umber
+  D5: "#8D4EA8" # Dark Fuchsia Purple
+  E10: "#B636A6" # Wine Red
+  F4: "#BC3637" # Deep Rust
+  F6: "#874332" # Mahogany
+  G17: "#635D55" # Black Coffee Brown
+  H6: "#4B534E" # Off-Black / Onyx
+
+group_5:
+  A15: "#E2FF42" # Neon Lime Yellow
+  A5: "#FFD54F" # Bright Maize
+  A8: "#FFC107" # Amber Yellow
+  A12: "#FFAB91" # Pale Coral
+  A9: "#FF8A65" # Deep Peach
+  G6: "#FF7043" # Bright Terra Cotta
+  A1: "#FFF9C4" # Pale Primrose
+  B13: "#C5E1A5" # Pale Pistachio Green
+  B1: "#AED581" # Soft Apple Green
+  B2: "#81C784" # Light Grass Green
+  B4: "#66BB6A" # Mid-Tone Leaf Green
+  B11: "#607D8B" # Blue-Grey Moss
+  H12: "#F5F5DC" # Beige / Eggshell
+  C1: "#B2DFDB" # Soft Aquamarine
+  B16: "#A5D6A7" # Pale Sage Green
+  B6: "#4DB6AC" # Teal Mint
+  C15: "#26C6DA" # Bright Turquoise
+  B15: "#2E7D32" # Forest Green
+  C14: "#E1F5FE" # Very Pale Blue
+  D17: "#9FA8DA" # Periwinkle Blue
+  D1: "#7986CB" # Soft Denim Blue
+  C4: "#64B5F6" # Cornflower Blue
+  C17: "#4FC3F7" # Bright Sky Blue
+  C9: "#1976D2" # Vivid Royal Blue
+
+group_6:
+  H8: "#F1DFF1" # Dusty Lilac
+  G15: "#E8F5E9" # Mint Cream
+  A2: "#FFF9C4" # Light Cream
+  H13: "#EFEBE9" # Linen / Bone
+  G16: "#F5F5DC" # Beige
+  H9: "#E0E0E0" # Platinum Grey
+  H10: "#E1BEE7" # Soft Lavender
+  M1: "#CFD8DC" # Cool Ash Grey
+  G11: "#FFF59D" # Soft Butter Yellow
+  G4: "#FFCC80" # Apricot Peach
+  M4: "#D7CCC8" # Warm Sand
+  H14: "#BDBDBD" # Silver Grey
+  M10: "#B39DDB" # Muted Amethyst
+  M2: "#C8E6C9" # Pale Sage
+  G12: "#FFE082" # Flaxen Yellow
+  M13: "#D8AD91" # Dusty Terracotta
+  M7: "#BCAAA4" # Rosy Taupe (Warm)
+  H11: "#CFD8DC" # Blue-Grey Pearl
+  M11: "#9575CD" # Heather Purple
+  M3: "#90A4AE" # Slate Blue-Grey
+  G10: "#FFB74D" # Muted Orange
+  M14: "#E57373" # Dusty Coral
+  M8: "#A1887F" # Warm Mushroom
+  M15: "#9E9E9E" # Flat Grey

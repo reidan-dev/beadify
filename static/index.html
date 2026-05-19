@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beadify</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- =====================================================================
+     Crop modal
+     ===================================================================== -->
+<div id="crop-modal" class="modal-backdrop hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">Crop Image</span>
+      <button id="crop-cancel-btn" class="btn btn-secondary btn-sm">&#10005; Cancel</button>
+    </div>
+    <div class="modal-body" id="crop-modal-body">
+      <canvas id="crop-canvas"></canvas>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-hint" id="crop-modal-hint">Drag to create &bull; drag inside to move &bull; drag handles to resize</span>
+      <button id="crop-clear-modal-btn" class="btn btn-secondary btn-sm">Clear</button>
+      <button id="crop-apply-btn" class="btn btn-primary btn-sm" disabled>Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+     Focus picker modal
+     ===================================================================== -->
+<div id="focus-picker-modal" class="modal-backdrop hidden">
+  <div class="modal-box" style="max-width:480px;width:95vw">
+    <div class="modal-header">
+      <span class="modal-title">Choose Section</span>
+      <button id="focus-picker-cancel-btn" class="btn btn-secondary btn-sm">&#10005; Cancel</button>
+    </div>
+    <div style="padding:4px 0 8px">
+      <p class="modal-hint" style="padding:0 4px 10px">Select a sub-grid section to focus on.</p>
+      <div id="focus-picker-grid" class="focus-picker-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+     Palette modal
+     ===================================================================== -->
+<div id="palette-modal" class="modal-backdrop hidden">
+  <div class="modal-box" style="max-width:700px;width:95vw">
+    <div class="modal-header">
+      <span class="modal-title">Color Palette</span>
+      <button id="palette-close-btn" class="btn btn-secondary btn-sm">&#10005; Close</button>
+    </div>
+    <div style="overflow-y:auto;max-height:70vh;padding:4px 0">
+      <div id="palette-grid" class="palette-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+     App shell
+     ===================================================================== -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <span class="app-logo">&#9679;</span>
+      <span class="app-title">Beadify</span>
+    </div>
+    <button id="palette-btn" class="btn btn-ghost btn-sm">&#9632; Palette</button>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- ===================================================================
+       Setup sidebar
+       =================================================================== -->
+  <aside class="setup-panel" id="setup-panel">
+
+    <!-- Collapse toggle -->
+    <button id="panel-toggle-btn" class="panel-toggle-btn" title="Toggle panel">&#8249;</button>
+
+    <!-- Scrollable content -->
+    <div class="panel-content">
+
+      <!-- Image -->
+      <div class="panel-section">
+        <div class="panel-section-title">Image</div>
+        <input type="file" id="file-input" accept="image/*" class="file-input" />
+        <div class="panel-row panel-transforms">
+          <button id="flip-x-btn"     class="btn btn-secondary btn-sm" title="Flip horizontal">&#8596;</button>
+          <button id="flip-y-btn"     class="btn btn-secondary btn-sm" title="Flip vertical">&#8597;</button>
+          <button id="rotate-ccw-btn" class="btn btn-secondary btn-sm" title="Rotate 90° CCW">&#8630;</button>
+          <button id="rotate-cw-btn"  class="btn btn-secondary btn-sm" title="Rotate 90° CW">&#8631;</button>
+          <div class="panel-vsep"></div>
+          <button id="open-crop-btn"  class="btn btn-secondary btn-sm">&#9986; Crop</button>
+          <button id="clear-crop-btn" class="btn btn-secondary btn-sm invisible">&#10005;</button>
+        </div>
+        <span id="crop-status" class="crop-status-text"></span>
+      </div>
+
+      <!-- Grid -->
+      <div class="panel-section">
+        <div class="panel-section-title">Grid</div>
+        <div class="panel-field">
+          <span class="panel-label">px per bead</span>
+          <input type="number" id="bead-size" value="1" min="1" max="500" class="number-input panel-input-full" />
+        </div>
+        <div class="panel-field">
+          <span class="panel-label">Force cols &#215; rows</span>
+          <div class="panel-inline">
+            <input type="number" id="force-cols" placeholder="cols" min="1" max="2000" class="number-input sm" />
+            <span class="dim-sep">&#215;</span>
+            <input type="number" id="force-rows" placeholder="rows" min="1" max="2000" class="number-input sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="panel-section">
+        <div class="panel-section-title">Options</div>
+        <label class="toggle-group">
+          <input type="checkbox" id="remove-bg" /> Remove background
+        </label>
+        <div class="one-to-one-group">
+          <label class="toggle-group" title="Each palette color used at most once; displaced colors fall back to nearest match if too far away">
+            <input type="checkbox" id="one-to-one" /> 1:1 color match
+          </label>
+          <div class="one-to-one-threshold invisible">
+            <input type="number" id="de-threshold" class="number-input sm" value="10" min="1" max="100" step="1" />
+            <span class="muted-unit" title="CIEDE2000 ΔE limit — if a displaced color is farther than this from the original pixel, reuse is allowed instead">% &#916;E fallback</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer actions -->
+      <div class="panel-footer">
+        <div class="panel-footer-row">
+          <button id="load-btn" class="btn btn-secondary btn-sm flex1" disabled>Load</button>
+          <button id="save-btn" class="btn btn-secondary btn-sm flex1" disabled>Save</button>
+        </div>
+        <button id="process-btn" class="btn btn-primary process-btn" disabled>&#9654; Process</button>
+      </div>
+
+    </div><!-- /panel-content -->
+  </aside>
+
+  <!-- ===================================================================
+       Main content
+       =================================================================== -->
+  <main class="app-main">
+
+    <div id="status-bar" class="status-bar hidden"></div>
+
+    <!-- Tab bar -->
+    <div id="tab-bar" class="tab-bar hidden">
+      <button id="tab-preview-btn" class="tab-btn">&#128247; Preview</button>
+      <button id="tab-board-btn"   class="tab-btn" disabled>&#9651; Board</button>
+    </div>
+
+    <!-- Live preview -->
+    <section id="preview-panel" class="preview-panel hidden">
+      <div class="preview-toolbar">
+        <div class="preview-meta">
+          <div id="preview-dims">&#8212; &#215; &#8212;</div>
+          <div id="preview-dims-sub"></div>
+        </div>
+        <div class="display-settings">
+          <div class="ds-row">
+            <span class="field-label">Cell</span>
+            <input type="range" id="zoom-slider" class="ds-slider" min="1" max="60" value="12" />
+            <input type="number" id="zoom-input" class="number-input sm" value="12" min="1" max="200" />
+            <span class="muted-unit">px</span>
+          </div>
+          <div class="ds-row">
+            <span class="field-label">Gap</span>
+            <input type="range" id="gap-slider" class="ds-slider" min="0" max="20" value="1" />
+            <input type="number" id="gap-input" class="number-input sm" value="1" min="0" max="50" />
+            <span class="muted-unit">px</span>
+          </div>
+          <label class="toggle-group compact">
+            <input type="checkbox" id="show-grid-check" /> Grid
+          </label>
+        </div>
+      </div>
+      <div class="preview-canvas-wrap">
+        <canvas id="live-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Board section -->
+    <div id="board-section" class="board-section hidden">
+
+      <!-- Controls: top row -->
+      <div class="board-controls board-controls-top">
+
+        <div class="ctrl-group">
+          <button id="zoom-out-btn" class="btn btn-secondary btn-sm">&#8722;</button>
+          <span   id="board-zoom-val" class="board-zoom-val">12px</span>
+          <button id="zoom-in-btn"   class="btn btn-secondary btn-sm">+</button>
+          <button id="zoom-fit-btn"  class="btn btn-secondary btn-sm">Fit</button>
+        </div>
+
+        <div class="progress-inline">
+          <span id="progress-label" class="progress-text">0 / 0 beads done</span>
+          <div class="progress-track">
+            <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+          </div>
+          <span id="progress-pct" class="progress-pct-text">0%</span>
+        </div>
+
+        <div class="ctrl-group ctrl-group-right">
+          <button id="rotate-view-ccw-btn" class="btn btn-secondary btn-sm" title="Rotate view 45° CCW">&#8634; 45°</button>
+          <button id="rotate-view-cw-btn"  class="btn btn-secondary btn-sm" title="Rotate view 45° CW">&#8635; 45°</button>
+          <div class="ctrl-sep"></div>
+          <button id="fill-btn"    class="btn btn-secondary btn-sm" title="Flood-fill same-color connected beads">&#9724; Fill</button>
+          <button id="select-btn"  class="btn btn-secondary btn-sm" title="Drag to select a region">&#9638; Select</button>
+          <div class="ctrl-sep"></div>
+          <button id="numbers-btn" class="btn btn-secondary btn-sm" title="Toggle row/column numbers"># Nums</button>
+          <input  type="number" id="ruler-row-offset" class="number-input sm" value="0" title="Row offset" placeholder="row" style="width:42px" />
+          <input  type="number" id="ruler-col-offset" class="number-input sm" value="0" title="Col offset" placeholder="col" style="width:42px" />
+          <div class="ctrl-sep"></div>
+          <button id="legend-toggle-btn" class="btn btn-secondary btn-sm">Show all</button>
+          <button id="clear-all-btn"     class="btn btn-secondary btn-sm">&#10005; Clear</button>
+        </div>
+
+      </div>
+
+      <!-- Controls: tools row -->
+      <div class="board-controls board-controls-tools">
+
+        <div class="toolbar-group">
+          <span class="toolbar-group-label">Mark</span>
+          <div class="toolbar-group-btns">
+            <button id="mark-row-btn"   class="btn btn-secondary btn-sm" title="Click a bead to mark its entire row">&#8212; Row</button>
+            <button id="mark-col-btn"   class="btn btn-secondary btn-sm" title="Click a bead to mark its entire col">&#124; Col</button>
+            <button id="mark-clear-btn" class="btn btn-secondary btn-sm" title="Clear all line marks">&#10005;</button>
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <span class="toolbar-group-label">Guide</span>
+          <div class="toolbar-group-btns">
+            <input  type="number" id="guide-n-input" class="number-input sm" placeholder="N" min="1" max="500" title="Repeat every N beads" style="width:46px" />
+            <button id="guide-toggle-btn" class="btn btn-secondary btn-sm" title="Show/hide guide grid">Grid</button>
+            <button id="guide-lock-btn"   class="btn btn-secondary btn-sm" title="Unlock to drag guide grid">&#128274;</button>
+            <input  type="color" id="guide-color-input" class="guide-color-input" value="#ff1e3c" title="Guide line color" />
+            <button id="guide-clear-btn"  class="btn btn-secondary btn-sm" title="Remove guide grid">&#10005;</button>
+            <button id="focus-btn" class="btn btn-secondary btn-sm invisible" title="Focus one sub-grid at a time">&#9654; Focus</button>
+          </div>
+        </div>
+
+        <div id="focus-nav" class="toolbar-group hidden">
+          <span class="toolbar-group-label">Focus</span>
+          <div class="toolbar-group-btns">
+            <button id="focus-up-btn"    class="btn btn-secondary btn-sm" title="Previous row section">&#8593;</button>
+            <button id="focus-down-btn"  class="btn btn-secondary btn-sm" title="Next row section">&#8595;</button>
+            <button id="focus-left-btn"  class="btn btn-secondary btn-sm" title="Previous col section">&#8592;</button>
+            <button id="focus-right-btn" class="btn btn-secondary btn-sm" title="Next col section">&#8594;</button>
+            <span   id="focus-label" class="focus-label"></span>
+            <div id="focus-minimap" class="focus-minimap"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Board + legend -->
+      <div class="board-layout">
+        <div class="board-wrapper">
+          <div class="board-with-rulers">
+            <div class="ruler-corner" style="display:none"></div>
+            <div id="ruler-col" class="ruler-col" style="display:none"></div>
+            <div id="ruler-row" class="ruler-row" style="display:none"></div>
+            <div id="bead-board" class="bead-board">
+              <div class="empty-state">
+                <div class="empty-icon">&#9679;&#9679;&#9679;</div>
+                <p>Upload an image and click <strong>&#9654; Process</strong> to begin.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside id="legend" class="legend">
+          <div class="legend-header">
+            <h2 class="legend-title">Colors</h2>
+            <span id="color-count" class="legend-color-count"></span>
+            <button id="legend-collapse-all-btn" class="btn btn-secondary btn-sm" title="Collapse all groups">&#8645;</button>
+            <button id="legend-vis-all-btn" class="btn btn-secondary btn-sm" title="Show / hide all colors">&#128065;</button>
+            <button id="legend-deselect-btn" class="btn btn-secondary btn-sm invisible">&#10005;</button>
+          </div>
+          <div id="legend-list" class="legend-list"></div>
+        </aside>
+      </div>
+
+    </div><!-- /board-section -->
+
+  </main>
+
+</div><!-- /app-body -->
+
+<div id="bead-tip" class="bead-tip"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
