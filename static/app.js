@@ -75,12 +75,23 @@ const beadSizeInput        = document.getElementById('bead-size');
 const forceColsInput       = document.getElementById('force-cols');
 const forceRowsInput       = document.getElementById('force-rows');
 const removeBgCheck        = document.getElementById('remove-bg');
+const useLanczosCheck      = document.getElementById('use-lanczos');
+const ditherCheck          = document.getElementById('dither');
 const oneToOneCheck        = document.getElementById('one-to-one');
 const deThresholdInput     = document.getElementById('de-threshold');
 const oneToOneThreshold    = document.querySelector('.one-to-one-threshold');
 
 oneToOneCheck.addEventListener('change', () => {
   oneToOneThreshold.classList.toggle('invisible', !oneToOneCheck.checked);
+  // Dithering + 1:1 can't be combined; disable dithering when 1:1 is on
+  if (oneToOneCheck.checked) ditherCheck.checked = false;
+});
+
+ditherCheck.addEventListener('change', () => {
+  if (ditherCheck.checked) {
+    oneToOneCheck.checked = false;
+    oneToOneThreshold.classList.add('invisible');
+  }
 });
 const showGridCheck        = document.getElementById('show-grid-check');
 const processBtn           = document.getElementById('process-btn');
@@ -113,6 +124,9 @@ const legendToggleBtn      = document.getElementById('legend-toggle-btn');
 const beadTip              = document.getElementById('bead-tip');
 const fillBtn              = document.getElementById('fill-btn');
 const selectBtn            = document.getElementById('select-btn');
+const roundBeadsBtn        = document.getElementById('round-beads-btn');
+const exportPngBtn         = document.getElementById('export-png-btn');
+const exportCsvBtn         = document.getElementById('export-csv-btn');
 const rotateViewCwBtn      = document.getElementById('rotate-view-cw-btn');
 const rotateViewCcwBtn     = document.getElementById('rotate-view-ccw-btn');
 const boardWrapper         = document.querySelector('.board-wrapper');
@@ -163,6 +177,36 @@ const panelToggleBtn       = document.getElementById('panel-toggle-btn');
 
 panelToggleBtn.addEventListener('click', () => {
   setupPanel.classList.toggle('collapsed');
+});
+
+// ---------------------------------------------------------------------------
+// Drag-and-drop file upload
+// ---------------------------------------------------------------------------
+
+const dropZone = document.getElementById('drop-zone');
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const dt = e.dataTransfer;
+  if (!dt || !dt.files || !dt.files.length) return;
+  const f = dt.files[0];
+  if (!f.type.startsWith('image/')) return;
+
+  // Programmatically assign to the file input
+  const dT = new DataTransfer();
+  dT.items.add(f);
+  fileInput.files = dT.files;
+  fileInput.dispatchEvent(new Event('change'));
 });
 // Palette modal
 const paletteBtn           = document.getElementById('palette-btn');
@@ -725,13 +769,15 @@ processBtn.addEventListener('click', async () => {
     const stem = file.name.replace(/\.[^.]+$/, '') || 'image';
 
     const fd = new FormData();
-    fd.append('file',       blob, stem + '.png');
-    fd.append('bead_size',  beadSize);
-    fd.append('force_cols', forceCols);
-    fd.append('force_rows', forceRows);
-    fd.append('remove_bg',  removeBg);
-    fd.append('one_to_one', oneToOneCheck.checked);
+    fd.append('file',        blob, stem + '.png');
+    fd.append('bead_size',   beadSize);
+    fd.append('force_cols',  forceCols);
+    fd.append('force_rows',  forceRows);
+    fd.append('remove_bg',   removeBg);
+    fd.append('one_to_one',  oneToOneCheck.checked);
     fd.append('de_threshold', parseFloat(deThresholdInput.value) || 10);
+    fd.append('dither',      ditherCheck.checked);
+    fd.append('use_lanczos', useLanczosCheck.checked);
 
     const resp = await fetch('/process', { method: 'POST', body: fd });
     if (!resp.ok) {
@@ -826,6 +872,9 @@ function renderGrid(project) {
   redoStack.length = 0;
   setFillMode(false);
   setSelectMode(false);
+  roundBeads = false;
+  roundBeadsBtn.classList.remove('active');
+  beadBoard.classList.remove('round-beads');
   beadBoard.classList.toggle('show-grid', showGridCheck.checked);
   if (showAllMode) beadBoard.classList.add('show-all');
 
@@ -1089,6 +1138,96 @@ clearAllBtn.addEventListener('click', () => {
   updateProgress();
   renderLegend();
   saveProgress();
+});
+
+// ---------------------------------------------------------------------------
+// Round beads toggle
+// ---------------------------------------------------------------------------
+
+let roundBeads = false;
+
+roundBeadsBtn.addEventListener('click', () => {
+  roundBeads = !roundBeads;
+  roundBeadsBtn.classList.toggle('active', roundBeads);
+  beadBoard.classList.toggle('round-beads', roundBeads);
+});
+
+// ---------------------------------------------------------------------------
+// Export board as PNG
+// ---------------------------------------------------------------------------
+
+exportPngBtn.addEventListener('click', () => {
+  if (!currentProject) return;
+  const cellPx = 20;
+  const gapPx  = 1;
+  const cols = currentProject.width;
+  const rows = currentProject.height;
+  const w = cols * (cellPx + gapPx) - gapPx;
+  const h = rows * (cellPx + gapPx) - gapPx;
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0d0d18';
+  ctx.fillRect(0, 0, w, h);
+
+  const fontSize = Math.max(5, Math.round(cellPx * 0.35));
+  ctx.font         = `bold ${fontSize}px monospace`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (const bead of currentProject.beads) {
+    if (bead.transparent) continue;
+    const x = bead.col * (cellPx + gapPx);
+    const y = bead.row * (cellPx + gapPx);
+    ctx.fillStyle = hexToRgba(bead.color, 0.85);
+    if (roundBeads) {
+      ctx.beginPath();
+      ctx.arc(x + cellPx / 2, y + cellPx / 2, cellPx / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillRect(x, y, cellPx, cellPx);
+    }
+    ctx.fillStyle = labelColor(bead.color);
+    ctx.fillText(bead.label, x + cellPx / 2, y + cellPx / 2);
+  }
+
+  const link = document.createElement('a');
+  link.download = `${currentProject.name}_bead_pattern.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// ---------------------------------------------------------------------------
+// Export bead counts as CSV
+// ---------------------------------------------------------------------------
+
+exportCsvBtn.addEventListener('click', () => {
+  if (!currentProject) return;
+  const counts = {};
+  for (const b of currentProject.beads) {
+    if (b.transparent) continue;
+    if (!counts[b.label]) counts[b.label] = { color: b.color, total: 0, done: 0 };
+    counts[b.label].total++;
+    if (b.done) counts[b.label].done++;
+  }
+
+  const rows = [['Label', 'Color', 'Total', 'Done', 'Remaining']];
+  for (const [label, { color, total, done }] of Object.entries(counts).sort()) {
+    rows.push([label, color, total, done, total - done]);
+  }
+  const totalBeads = Object.values(counts).reduce((s, c) => s + c.total, 0);
+  const totalDone  = Object.values(counts).reduce((s, c) => s + c.done,  0);
+  rows.push(['TOTAL', '', totalBeads, totalDone, totalBeads - totalDone]);
+
+  const csv  = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.download = `${currentProject.name}_bead_counts.csv`;
+  link.href = URL.createObjectURL(blob);
+  link.click();
+  URL.revokeObjectURL(link.href);
 });
 
 // ---------------------------------------------------------------------------

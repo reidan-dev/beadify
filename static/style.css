@@ -335,6 +335,28 @@ body {
    Inputs
    ========================================================= */
 
+/* Drop zone wraps the file input; highlights on dragover */
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  padding: 6px;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.drop-zone-hint {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
 .file-input {
   background: var(--bg-input);
   border: 1px solid var(--border);
@@ -885,6 +907,12 @@ body {
 }
 .guide-origin::before { left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%); }
 .guide-origin::after  { top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); }
+
+/* Round beads mode */
+.bead-board.round-beads .bead {
+  border-radius: 50%;
+  overflow: hidden;
+}
 
 /* Cursors */
 .bead-board.mark-row-mode .bead,

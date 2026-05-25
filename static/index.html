@@ -88,7 +88,10 @@
       <!-- Image -->
       <div class="panel-section">
         <div class="panel-section-title">Image</div>
-        <input type="file" id="file-input" accept="image/*" class="file-input" />
+        <div id="drop-zone" class="drop-zone">
+          <input type="file" id="file-input" accept="image/*" class="file-input" />
+          <span class="drop-zone-hint">or drop image here</span>
+        </div>
         <div class="panel-row panel-transforms">
           <button id="flip-x-btn"     class="btn btn-secondary btn-sm" title="Flip horizontal">&#8596;</button>
           <button id="flip-y-btn"     class="btn btn-secondary btn-sm" title="Flip vertical">&#8597;</button>
@@ -123,6 +126,12 @@
         <div class="panel-section-title">Options</div>
         <label class="toggle-group">
           <input type="checkbox" id="remove-bg" /> Remove background
+        </label>
+        <label class="toggle-group" title="LANCZOS averages many source pixels per bead cell — better color accuracy for photos. Uncheck for pixel art (NEAREST).">
+          <input type="checkbox" id="use-lanczos" checked /> Smooth resize
+        </label>
+        <label class="toggle-group" title="Floyd-Steinberg dithering distributes color quantization error to neighbors for smoother gradients. Cannot be combined with 1:1.">
+          <input type="checkbox" id="dither" /> Dithering
         </label>
         <div class="one-to-one-group">
           <label class="toggle-group" title="Each palette color used at most once; displaced colors fall back to nearest match if too far away">
@@ -215,12 +224,16 @@
           <button id="rotate-view-ccw-btn" class="btn btn-secondary btn-sm" title="Rotate view 45° CCW">&#8634; 45°</button>
           <button id="rotate-view-cw-btn"  class="btn btn-secondary btn-sm" title="Rotate view 45° CW">&#8635; 45°</button>
           <div class="ctrl-sep"></div>
+          <button id="round-beads-btn" class="btn btn-secondary btn-sm" title="Toggle circular bead shape">&#9679; Round</button>
           <button id="fill-btn"    class="btn btn-secondary btn-sm" title="Flood-fill same-color connected beads">&#9724; Fill</button>
           <button id="select-btn"  class="btn btn-secondary btn-sm" title="Drag to select a region">&#9638; Select</button>
           <div class="ctrl-sep"></div>
           <button id="numbers-btn" class="btn btn-secondary btn-sm" title="Toggle row/column numbers"># Nums</button>
           <input  type="number" id="ruler-row-offset" class="number-input sm" value="0" title="Row offset" placeholder="row" style="width:42px" />
           <input  type="number" id="ruler-col-offset" class="number-input sm" value="0" title="Col offset" placeholder="col" style="width:42px" />
+          <div class="ctrl-sep"></div>
+          <button id="export-png-btn" class="btn btn-secondary btn-sm" title="Export board as PNG image">&#8659; PNG</button>
+          <button id="export-csv-btn" class="btn btn-secondary btn-sm" title="Export bead counts as CSV shopping list">&#8659; CSV</button>
           <div class="ctrl-sep"></div>
           <button id="legend-toggle-btn" class="btn btn-secondary btn-sm">Show all</button>
           <button id="clear-all-btn"     class="btn btn-secondary btn-sm">&#10005; Clear</button>
