@@ -13,5 +13,5 @@
   "env": {
     "BEADIFY_READONLY": "1"
   },
-  "buildCommand": "./.vercel-build.sh"
+  "buildCommand": "./vercel-build.sh"
 }
