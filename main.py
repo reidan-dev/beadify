@@ -453,4 +453,4 @@ def run(port=8000):
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 
 if __name__ == "__main__":
-    run(port=8001)
+    run(port=8080)
