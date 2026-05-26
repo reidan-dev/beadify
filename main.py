@@ -448,9 +448,9 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 app.mount("/static",  StaticFiles(directory=str(STATIC_LEGACY)), name="static_legacy")
 
 
-def run():
+def run(port=8000):
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 
 if __name__ == "__main__":
-    run()
+    run(port=8001)
