@@ -29,3 +29,7 @@ rembg = [
 [project.scripts]
 beadify = "main:run"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+
