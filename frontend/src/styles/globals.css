@@ -1189,3 +1189,16 @@ select.input:focus { outline: 2px solid var(--accent); border-color: var(--accen
   .board-layout { flex-direction: column; }
   .legend { width: 100%; border-left: none; border-top: 1px solid var(--border); }
 }
+
+/* ================================================================
+   Pixelated preview
+   ================================================================ */
+
+.pixelated-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  z-index: 10;
+}

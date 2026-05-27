@@ -97,3 +97,78 @@ export function debounce(fn, ms) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
+
+/** Create a pixelated preview of an image based on bead size */
+export function createPixelatedPreview(image, { cropSelection, flipX, flipY, rotation, beadSize }) {
+  const iw = image.naturalWidth;
+  const ih = image.naturalHeight;
+
+  let sx = 0, sy = 0, sw = iw, sh = ih;
+  if (cropSelection) {
+    sx = Math.round(cropSelection.x * iw);
+    sy = Math.round(cropSelection.y * ih);
+    sw = Math.round(cropSelection.w * iw);
+    sh = Math.round(cropSelection.h * ih);
+  }
+
+  // Step 1: crop
+  const base = document.createElement('canvas');
+  base.width = sw; base.height = sh;
+  base.getContext('2d').drawImage(image, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  // Step 2: flip
+  let cur = base;
+  if (flipX || flipY) {
+    const fc = document.createElement('canvas');
+    fc.width = sw; fc.height = sh;
+    const ctx = fc.getContext('2d');
+    ctx.save();
+    ctx.translate(flipX ? sw : 0, flipY ? sh : 0);
+    ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+    ctx.drawImage(cur, 0, 0);
+    ctx.restore();
+    cur = fc;
+  }
+
+  // Step 3: rotate
+  if (rotation !== 0) {
+    const swap = rotation === 90 || rotation === 270;
+    const rc = document.createElement('canvas');
+    rc.width  = swap ? sh : sw;
+    rc.height = swap ? sw : sh;
+    const ctx = rc.getContext('2d');
+    ctx.translate(rc.width / 2, rc.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.drawImage(cur, -sw / 2, -sh / 2);
+    cur = rc;
+  }
+
+  // Step 4: Apply pixelation based on bead size
+  const pixelated = document.createElement('canvas');
+  const ctx = pixelated.getContext('2d');
+
+  // Calculate pixelated dimensions
+  const pixelSize = Math.max(1, beadSize || 20);
+  const pixelatedWidth = Math.ceil(cur.width / pixelSize);
+  const pixelatedHeight = Math.ceil(cur.height / pixelSize);
+
+  pixelated.width = pixelatedWidth;
+  pixelated.height = pixelatedHeight;
+
+  // Draw pixelated version
+  for (let y = 0; y < pixelatedHeight; y++) {
+    for (let x = 0; x < pixelatedWidth; x++) {
+      const srcX = Math.floor(x * pixelSize);
+      const srcY = Math.floor(y * pixelSize);
+
+      // Make sure we don't go out of bounds
+      if (srcX < cur.width && srcY < cur.height) {
+        const pixel = ctx.getImageData(srcX, srcY, 1, 1).data;
+        ctx.fillStyle = `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${pixel[3]})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+
+  return pixelated;
+}
