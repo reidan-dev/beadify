@@ -75,11 +75,16 @@ export function drawBoard(canvas, {
     }
     ctx.globalAlpha = 1;
 
-    // Label — always show when cell is large enough and bead is not done.
+    // Label — always show when cell is large enough.
+    // Done beads keep their label too, then get an X struck over them.
     // Hidden beads get a muted lavender label (always readable on the dark board).
     // Dimmed (unfocused) beads get the normal contrasting color at half opacity.
-    if (showLabels && !isDone) {
-      if (isHidden) {
+    const doneStruck = isDone && !showAllMode;
+    if (showLabels) {
+      if (doneStruck) {
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle   = labelTextColor(bead.color);
+      } else if (isHidden) {
         ctx.globalAlpha = 0.65;
         ctx.fillStyle   = 'rgba(190, 175, 235, 1)';
       } else if (isDimmed) {
@@ -89,6 +94,21 @@ export function drawBoard(canvas, {
         ctx.fillStyle = labelTextColor(bead.color);
       }
       ctx.fillText(bead.label, x + cellPx / 2, y + cellPx / 2);
+      ctx.globalAlpha = 1;
+    }
+
+    // X over completed beads, in the grid (guide) color.
+    if (doneStruck) {
+      const pad = cellPx * 0.18;
+      ctx.strokeStyle = guideColor;
+      ctx.lineWidth   = Math.max(1.5, cellPx * 0.1);
+      ctx.globalAlpha = 0.95;
+      ctx.beginPath();
+      ctx.moveTo(x + pad,            y + pad);
+      ctx.lineTo(x + cellPx - pad,   y + cellPx - pad);
+      ctx.moveTo(x + cellPx - pad,   y + pad);
+      ctx.lineTo(x + pad,            y + cellPx - pad);
+      ctx.stroke();
       ctx.globalAlpha = 1;
     }
 
