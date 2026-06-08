@@ -115,11 +115,13 @@ export const useStore = create(
       gapPx:       1,
       roundBeads:  false,
       showAllMode: false,
+      boardBg:     '#000000',
 
       setCellPx(n)       { set({ cellPx: Math.max(1, Math.min(60, n)) }); },
       setGapPx(n)        { set({ gapPx:  Math.max(0, n) }); },
       toggleRoundBeads() { set(s => ({ roundBeads: !s.roundBeads })); },
       toggleShowAll()    { set(s => ({ showAllMode: !s.showAllMode })); },
+      setBoardBg(c)      { set({ boardBg: c }); },
 
       // ===================================================================
       // Legend / visibility
@@ -456,6 +458,7 @@ export const useStore = create(
         cellPx:         state.cellPx,
         gapPx:          state.gapPx,
         roundBeads:     state.roundBeads,
+        boardBg:        state.boardBg,
         beadSize:       state.beadSize,
         useLanczos:     state.useLanczos,
         dither:         state.dither,

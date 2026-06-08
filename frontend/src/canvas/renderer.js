@@ -8,6 +8,7 @@ export function drawBoard(canvas, {
   gapPx,
   roundBeads,
   showAllMode,
+  boardBg,
   selectedLabel,
   hiddenLabels,
   markedRows,
@@ -34,7 +35,7 @@ export function drawBoard(canvas, {
     canvas.height = totalH;
   }
 
-  ctx.fillStyle = 'var(--board-bg, #07070e)';
+  ctx.fillStyle = boardBg || '#000000';
   ctx.fillRect(0, 0, totalW, totalH);
 
   const hasFocus    = !!selectedLabel;

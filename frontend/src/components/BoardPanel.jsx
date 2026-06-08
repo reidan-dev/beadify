@@ -8,6 +8,7 @@ export function BoardPanel() {
     project, doneSet, beadMap,
     cellPx, setCellPx, gapPx, setGapPx,
     roundBeads, toggleRoundBeads, showAllMode, toggleShowAll,
+    boardBg, setBoardBg,
     activeTool, setActiveTool,
     showRulers, toggleRulers, rulerRowOffset, setRulerRowOffset, rulerColOffset, setRulerColOffset,
     guideN, setGuideN, guideVisible, toggleGuideVisible, guideLocked, toggleGuideLock,
@@ -125,6 +126,14 @@ export function BoardPanel() {
           <button className={`btn btn-ghost btn-sm ${roundBeads ? 'active' : ''}`} onClick={toggleRoundBeads} title="Round beads">○ Round</button>
           <button className={`btn btn-ghost btn-sm ${showAllMode ? 'active' : ''}`} onClick={toggleShowAll} title="Show all beads">◎ All</button>
           <button className={`btn btn-ghost btn-sm ${showRulers ? 'active' : ''}`} onClick={toggleRulers} title="Show rulers"># Rulers</button>
+          <input
+            type="color" value={boardBg} onChange={e => setBoardBg(e.target.value)}
+            style={{ width: 26, height: 26, border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}
+            title="Board background color"
+          />
+          {boardBg !== '#000000' && (
+            <button className="btn btn-ghost btn-xs" onClick={() => setBoardBg('#000000')} title="Reset background to black">⟲</button>
+          )}
           {showRulers && (
             <>
               <input className="num-input sm" type="number" value={rulerRowOffset}
@@ -175,6 +184,7 @@ export function BoardPanel() {
         <div
           className="board-wrapper"
           ref={wrapperRef}
+          style={{ background: boardBg }}
           title="Ctrl+scroll to zoom · Scroll or drag (left/middle button) to pan"
         >
           <div

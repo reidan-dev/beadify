@@ -14,7 +14,7 @@ export function useCanvasBoard() {
   const [panning, setPanning] = useState(false);
 
   const {
-    project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode,
+    project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode, boardBg,
     selectedLabel, hiddenLabels, markedRows, markedCols,
     guideN, guideOriginCol, guideOriginRow, guideVisible, guideColor, guideLocked,
     showRulers, rulerRowOffset, rulerColOffset, viewRotation,
@@ -36,14 +36,14 @@ export function useCanvasBoard() {
     const canvas = canvasRef.current;
     if (!canvas || !project) return;
     drawBoard(canvas, {
-      project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode,
+      project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode, boardBg,
       selectedLabel, hiddenLabels, markedRows, markedCols,
       guideN, guideOriginCol, guideOriginRow, guideVisible, guideColor,
       showRulers, rulerRowOffset, rulerColOffset,
       highlightBlink: blinkOn,
     });
   }, [
-    project, doneSet, cellPx, gapPx, roundBeads, showAllMode,
+    project, doneSet, cellPx, gapPx, roundBeads, showAllMode, boardBg,
     selectedLabel, hiddenLabels, markedRows, markedCols,
     guideN, guideOriginCol, guideOriginRow, guideVisible, guideColor,
     showRulers, rulerRowOffset, rulerColOffset, blinkOn,
@@ -122,7 +122,7 @@ export function useCanvasBoard() {
       const ctx = canvas.getContext('2d');
       // Re-draw board then overlay
       drawBoard(canvas, {
-        project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode,
+        project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode, boardBg,
         selectedLabel, hiddenLabels, markedRows, markedCols,
         guideN, guideOriginCol, guideOriginRow, guideVisible, guideColor,
         showRulers, rulerRowOffset, rulerColOffset, highlightBlink: blinkOn,
@@ -141,7 +141,7 @@ export function useCanvasBoard() {
     }
   }, [project, beadMap, cellPx, gapPx, activeTool, guideLocked, guideN,
       showRulers, rulerRowOffset, rulerColOffset, setGuideOrigin,
-      doneSet, roundBeads, showAllMode, selectedLabel, hiddenLabels,
+      doneSet, roundBeads, showAllMode, boardBg, selectedLabel, hiddenLabels,
       markedRows, markedCols, guideOriginCol, guideOriginRow, guideVisible,
       guideColor, blinkOn]);
 
