@@ -10,6 +10,8 @@ export function useCanvasBoard() {
   const [tipPos,  setTipPos]      = useState(null);    // {x, y, text} | null
   const selectStart = useRef(null);
   const isDragging  = useRef(false);
+  const suppressClick = useRef(false);
+  const [panning, setPanning] = useState(false);
 
   const {
     project, doneSet, beadMap, cellPx, gapPx, roundBeads, showAllMode,
@@ -145,9 +147,44 @@ export function useCanvasBoard() {
 
   const handleMouseLeave = useCallback(() => setTipPos(null), []);
 
+  // ─── Click-drag panning (scrolls the board wrapper) ──────────────────────────
+  const startPan = useCallback((e, wrapper) => {
+    const startX = e.clientX, startY = e.clientY;
+    const scrollLeft0 = wrapper.scrollLeft, scrollTop0 = wrapper.scrollTop;
+    let moved = false;
+    setPanning(true);
+    const onMove = (ev) => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) moved = true;
+      wrapper.scrollLeft = scrollLeft0 - dx;
+      wrapper.scrollTop  = scrollTop0  - dy;
+    };
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      setPanning(false);
+      if (moved) suppressClick.current = true;  // swallow the click after a drag
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, []);
+
   const handleMouseDown = useCallback((e) => {
-    if (!project || e.button !== 0) return;
+    if (!project) return;
     const canvas = canvasRef.current;
+    const wrapper = canvas?.closest('.board-wrapper');
+
+    // Pan with middle button anywhere, or left button in plain cursor mode.
+    // A left click that doesn't move still toggles the bead (handled in onClick).
+    const leftPanOk = e.button === 0 && activeTool === null && (guideLocked || guideN === 0);
+    if (wrapper && (e.button === 1 || leftPanOk)) {
+      if (e.button === 1) e.preventDefault();   // stop middle-click autoscroll
+      startPan(e, wrapper);
+      return;
+    }
+    if (e.button !== 0) return;
+
     const { row, col } = getBeadCoords(canvas, e, cellPx, gapPx);
     isDragging.current = true;
 
@@ -164,7 +201,7 @@ export function useCanvasBoard() {
       // Guide drag starts — do nothing else
       return;
     }
-  }, [project, cellPx, gapPx, activeTool, guideLocked, guideN]);
+  }, [project, cellPx, gapPx, activeTool, guideLocked, guideN, startPan]);
 
   const handleMouseUp = useCallback((e) => {
     if (!project || !isDragging.current) return;
@@ -186,6 +223,7 @@ export function useCanvasBoard() {
   }, [project, cellPx, gapPx, activeTool, markSelection]);
 
   const handleClick = useCallback((e) => {
+    if (suppressClick.current) { suppressClick.current = false; return; }
     if (!project) return;
     const canvas = canvasRef.current;
     const { row, col } = getBeadCoords(canvas, e, cellPx, gapPx);
@@ -228,6 +266,7 @@ export function useCanvasBoard() {
 
   // ─── Canvas cursor ────────────────────────────────────────────────────────────
   const getCursor = () => {
+    if (panning) return 'grabbing';
     if (!guideLocked && guideN > 0) return isDragging.current ? 'grabbing' : 'grab';
     if (activeTool === 'fill')    return 'cell';
     if (activeTool === 'select')  return 'crosshair';

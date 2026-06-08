@@ -175,7 +175,7 @@ export function BoardPanel() {
         <div
           className="board-wrapper"
           ref={wrapperRef}
-          title="Ctrl+scroll to zoom · Scroll to pan"
+          title="Ctrl+scroll to zoom · Scroll or drag (left/middle button) to pan"
         >
           <div
             className="board-canvas-container"
