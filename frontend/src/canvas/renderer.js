@@ -97,18 +97,21 @@ export function drawBoard(canvas, {
       ctx.globalAlpha = 1;
     }
 
-    // X over completed beads, in the grid (guide) color.
+    // Thick X over completed beads, in the bead's own color — so it stays
+    // clear which color belongs in each finished cell.
     if (doneStruck) {
       const pad = cellPx * 0.18;
-      ctx.strokeStyle = guideColor;
-      ctx.lineWidth   = Math.max(1.5, cellPx * 0.1);
-      ctx.globalAlpha = 0.95;
+      ctx.strokeStyle = bead.color;
+      ctx.lineWidth   = Math.max(2.5, cellPx * 0.22);
+      ctx.lineCap     = 'round';
+      ctx.globalAlpha = 1;
       ctx.beginPath();
       ctx.moveTo(x + pad,            y + pad);
       ctx.lineTo(x + cellPx - pad,   y + cellPx - pad);
       ctx.moveTo(x + cellPx - pad,   y + pad);
       ctx.lineTo(x + pad,            y + cellPx - pad);
       ctx.stroke();
+      ctx.lineCap     = 'butt';
       ctx.globalAlpha = 1;
     }
 
