@@ -2,6 +2,21 @@ import { useEffect, useState, useMemo } from 'react';
 import { useStore } from '../../store.js';
 import { getPalette } from '../../api.js';
 
+// The /palette endpoint returns groups of { label: hex } maps
+// (e.g. { group_1: { B3: "#A2E4B8" } }). Flatten to a [{ label, hex, group }] list.
+function flattenPalette(data) {
+  if (Array.isArray(data)) return data;
+  if (!data || typeof data !== 'object') return [];
+  const out = [];
+  for (const [group, entries] of Object.entries(data)) {
+    if (!entries || typeof entries !== 'object') continue;
+    for (const [label, hex] of Object.entries(entries)) {
+      out.push({ label, hex: String(hex), group });
+    }
+  }
+  return out;
+}
+
 export function PaletteModal({ onClose }) {
   const { project, selectedLabel, swapColor } = useStore();
   const [palette,   setPalette]   = useState([]);
@@ -12,7 +27,7 @@ export function PaletteModal({ onClose }) {
 
   useEffect(() => {
     getPalette()
-      .then(setPalette)
+      .then(data => setPalette(flattenPalette(data)))
       .catch(() => setPalette([]))
       .finally(() => setLoading(false));
   }, []);

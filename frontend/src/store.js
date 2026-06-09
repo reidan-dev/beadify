@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { saveProgress as apiSave, loadProgress as apiLoad } from './api.js';
+import { saveProgress as apiSave, loadProgress as apiLoad,
+         processImage as apiProcess, processMulti as apiProcessMulti } from './api.js';
+import { getTransformedCanvas } from './utils.js';
 
 export const useStore = create(
   persist(
@@ -29,6 +31,73 @@ export const useStore = create(
           guideOriginCol: null, guideOriginRow: null,
           undoStack: [], redoStack: [],
         });
+      },
+
+      // ===================================================================
+      // Board generation (shared by Setup panel + Board "Regenerate")
+      // ===================================================================
+      generating: false,
+
+      async generateBoard() {
+        const s = get();
+        set({ generating: true });
+        try {
+          if (s.tilesMode) {
+            if (s.tiles.length < 2) {
+              s.setStatus('Add at least 2 images for multi-image mode.', 'error');
+              return;
+            }
+            const configs = s.tiles.map(tile => ({
+              bead_size:    tile.beadSize,
+              force_cols:   tile.forceCols || 0,
+              force_rows:   tile.forceRows || 0,
+              dither:       s.dither,
+              use_lanczos:  s.useLanczos,
+              one_to_one:   false,
+              de_threshold: s.deThreshold,
+            }));
+            const fd = new FormData();
+            fd.append('arrangement', s.tileArrangement);
+            if (s.tileArrangement === 'grid') fd.append('grid_cols', String(s.tileGridCols));
+            fd.append('configs', JSON.stringify(configs));
+            for (const tile of s.tiles) {
+              const transformed = getTransformedCanvas(tile.image, {
+                cropSelection: tile.cropSelection ?? null,
+                flipX: tile.flipX ?? false, flipY: tile.flipY ?? false, rotation: tile.rotation ?? 0,
+              });
+              const blob = await new Promise((res, rej) =>
+                transformed.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+              fd.append('files', blob, tile.name);
+            }
+            const data = await apiProcessMulti(fd);
+            get().setProject(data);
+            get().setStatus(`Multi-image board: ${data.width}×${data.height} (${data.beads.filter(b => !b.transparent).length} beads)`, 'ok');
+          } else {
+            if (!s.loadedImage) { s.setStatus('Upload an image first.', 'error'); return; }
+            const transformed = getTransformedCanvas(s.loadedImage, {
+              cropSelection: s.cropSelection, flipX: s.imgFlipX, flipY: s.imgFlipY, rotation: s.imgRotation,
+            });
+            const blob = await new Promise((res, rej) =>
+              transformed.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+            const fd = new FormData();
+            fd.append('file',         blob, 'image.png');
+            fd.append('bead_size',    String(s.beadSize));
+            fd.append('force_cols',   String(s.forceCols));
+            fd.append('force_rows',   String(s.forceRows));
+            fd.append('dither',       String(s.dither));
+            fd.append('use_lanczos',  String(s.useLanczos));
+            fd.append('one_to_one',   String(s.oneToOne));
+            fd.append('de_threshold', String(s.deThreshold));
+            const data = await apiProcess(fd);
+            get().setProject(data);
+            get().setStatus(`Board ready: ${data.width}×${data.height} (${data.beads.filter(b => !b.transparent).length} beads)`, 'ok');
+          }
+          get().setActiveTab('board');
+        } catch (err) {
+          get().setStatus(`Error: ${err.message}`, 'error');
+        } finally {
+          set({ generating: false });
+        }
       },
 
       // ===================================================================

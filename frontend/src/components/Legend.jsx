@@ -16,7 +16,7 @@ function hexToHue(hex) {
 export function Legend() {
   const {
     project, doneSet, selectedLabel, hiddenLabels, legendSort, setLegendSort,
-    selectLabel, toggleHiddenLabel, toggleAllLabels, markAllByLabel,
+    selectLabel, clearSelection, toggleHiddenLabel, toggleAllLabels, markAllByLabel,
   } = useStore();
 
   const [collapsed, setCollapsed] = useState({ done: false, pending: false });
@@ -55,6 +55,11 @@ export function Legend() {
       <div className="legend-header">
         <span className="legend-title">Legend</span>
         <span className="legend-count">{totalDone}/{totalBeads}</span>
+        {selectedLabel && (
+          <button className="btn btn-ghost btn-xs" onClick={clearSelection} title={`Deselect ${selectedLabel}`}>
+            ✕ {selectedLabel}
+          </button>
+        )}
         <button className="btn btn-ghost btn-xs" onClick={toggleAllLabels} title="Toggle all visibility">👁</button>
       </div>
 

@@ -1,7 +1,5 @@
 import { useRef, useState, useCallback } from 'react';
 import { useStore } from '../store.js';
-import { processImage, processMulti } from '../api.js';
-import { getTransformedCanvas } from '../utils.js';
 import { CropModal } from './modals/CropModal.jsx';
 
 export function SetupPanel({ onOpenCrop }) {
@@ -13,13 +11,12 @@ export function SetupPanel({ onOpenCrop }) {
     deThreshold, setDeThreshold,
     tilesMode, setTilesMode, tiles, addTile, removeTile, updateTile, clearTiles,
     tileArrangement, setTileArrangement, tileGridCols, setTileGridCols,
-    setProject, setStatus, setActiveTab,
+    generating, generateBoard,
   } = useStore();
 
   const fileRef  = useRef(null);
   const tileRef  = useRef(null);
   const [dragOver, setDragOver]           = useState(false);
-  const [loading,  setLoading]            = useState(false);
   const [tileBeingCropped, setTileBeingCropped] = useState(null); // tile object | null
 
   // ─── Single image load ───────────────────────────────────────────────────────
@@ -50,78 +47,6 @@ export function SetupPanel({ onOpenCrop }) {
     });
     img.src = url;
   }, [addTile]);
-
-  // ─── Process ─────────────────────────────────────────────────────────────────
-  const handleProcess = useCallback(async () => {
-    setLoading(true);
-    try {
-      if (tilesMode) {
-        if (tiles.length < 2) { setStatus('Add at least 2 images for multi-image mode.', 'error'); return; }
-
-        const configs = tiles.map(tile => ({
-          bead_size:    tile.beadSize,
-          force_cols:   tile.forceCols || 0,
-          force_rows:   tile.forceRows || 0,
-          dither,
-          use_lanczos:  useLanczos,
-          one_to_one:   false,
-          de_threshold: deThreshold,
-        }));
-
-        const fd = new FormData();
-        fd.append('arrangement', tileArrangement);
-        if (tileArrangement === 'grid') fd.append('grid_cols', String(tileGridCols));
-        fd.append('configs', JSON.stringify(configs));
-
-        for (const tile of tiles) {
-          const transformed = getTransformedCanvas(tile.image, {
-            cropSelection: tile.cropSelection ?? null,
-            flipX:         tile.flipX    ?? false,
-            flipY:         tile.flipY    ?? false,
-            rotation:      tile.rotation ?? 0,
-          });
-          const blob = await new Promise((res, rej) =>
-            transformed.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png')
-          );
-          fd.append('files', blob, tile.name);
-        }
-
-        const data = await processMulti(fd);
-        setProject(data);
-        setStatus(`Multi-image board: ${data.width}×${data.height} (${data.beads.filter(b => !b.transparent).length} beads)`, 'ok');
-      } else {
-        if (!loadedImage) { setStatus('Upload an image first.', 'error'); return; }
-        const transformed = getTransformedCanvas(loadedImage, {
-          cropSelection, flipX: imgFlipX, flipY: imgFlipY, rotation: imgRotation,
-        });
-        const blob = await new Promise((res, rej) =>
-          transformed.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png')
-        );
-        const fd = new FormData();
-        fd.append('file',         blob, 'image.png');
-        fd.append('bead_size',    String(beadSize));
-        fd.append('force_cols',   String(forceCols));
-        fd.append('force_rows',   String(forceRows));
-        fd.append('dither',       String(dither));
-        fd.append('use_lanczos',  String(useLanczos));
-        fd.append('one_to_one',   String(oneToOne));
-        fd.append('de_threshold', String(deThreshold));
-        const data = await processImage(fd);
-        setProject(data);
-        setStatus(`Board ready: ${data.width}×${data.height} (${data.beads.filter(b => !b.transparent).length} beads)`, 'ok');
-      }
-      setActiveTab('board');
-    } catch (err) {
-      setStatus(`Error: ${err.message}`, 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    tilesMode, tiles, tileArrangement, tileGridCols,
-    loadedImage, cropSelection, imgFlipX, imgFlipY, imgRotation,
-    beadSize, forceCols, forceRows, dither, useLanczos, oneToOne, deThreshold,
-    setProject, setStatus, setActiveTab,
-  ]);
 
   return (
     <>
@@ -264,10 +189,10 @@ export function SetupPanel({ onOpenCrop }) {
       <div className="panel-footer">
         <button
           className="btn btn-primary btn-process"
-          onClick={handleProcess}
-          disabled={loading || (!tilesMode && !loadedImage) || (tilesMode && tiles.length < 2)}
+          onClick={generateBoard}
+          disabled={generating || (!tilesMode && !loadedImage) || (tilesMode && tiles.length < 2)}
         >
-          {loading ? 'Processing…' : 'Generate Board'}
+          {generating ? 'Processing…' : 'Generate Board'}
         </button>
       </div>
 

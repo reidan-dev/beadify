@@ -15,7 +15,17 @@ export function BoardPanel() {
     guideColor, setGuideColor, clearGuide,
     viewRotation, rotateViewCw, rotateViewCcw,
     manualSave, clearAll, clearMarks, resetAll,
+    generating, generateBoard, loadedImage, tilesMode, tiles,
   } = useStore();
+
+  const canRegen = tilesMode ? tiles.length >= 2 : !!loadedImage;
+  const handleRegenerate = () => {
+    if (!canRegen) return;
+    if (doneSet.size === 0 ||
+        window.confirm('Regenerate the board from your current image settings? This resets bead progress.')) {
+      generateBoard();
+    }
+  };
 
   const { canvasRef, tipPos, kbFocus, getCursor, zoomToFit, handlers } = useCanvasBoard();
   const wrapperRef = useRef(null);
@@ -97,6 +107,14 @@ export function BoardPanel() {
           <button className="btn btn-ghost btn-sm" onClick={manualSave}>Save</button>
           <button className="btn btn-ghost btn-sm" onClick={exportPng} title="Export PNG">PNG</button>
           <button className="btn btn-ghost btn-sm" onClick={clearAll} title="Unmark all beads">Clear all</button>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={handleRegenerate}
+            disabled={generating || !canRegen}
+            title={canRegen ? 'Rebuild board from current image settings' : 'Reload the image to regenerate'}
+          >
+            {generating ? 'Generating…' : '↻ Regenerate'}
+          </button>
         </div>
 
         <div className="ctrl-spacer" />
