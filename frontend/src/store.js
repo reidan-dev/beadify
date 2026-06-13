@@ -58,6 +58,7 @@ export const useStore = create(
             }));
             const fd = new FormData();
             fd.append('arrangement', s.tileArrangement);
+            fd.append('buffer', String(s.tileBuffer));
             if (s.tileArrangement === 'grid') fd.append('grid_cols', String(s.tileGridCols));
             fd.append('configs', JSON.stringify(configs));
             for (const tile of s.tiles) {
@@ -167,10 +168,12 @@ export const useStore = create(
       tiles:           [],
       tileArrangement: 'horizontal',
       tileGridCols:    2,
+      tileBuffer:      1,   // blank bead cells between images
 
       setTilesMode(v)       { set({ tilesMode: v }); },
       setTileArrangement(v) { set({ tileArrangement: v }); },
       setTileGridCols(n)    { set({ tileGridCols: Math.max(1, n) }); },
+      setTileBuffer(n)      { set({ tileBuffer: Math.max(0, n) }); },
 
       addTile(tile)        { set(s => ({ tiles: [...s.tiles, tile] })); },
       removeTile(id)       { set(s => ({ tiles: s.tiles.filter(t => t.id !== id) })); },
@@ -542,6 +545,7 @@ export const useStore = create(
         legendSort:     state.legendSort,
         tileArrangement:state.tileArrangement,
         tileGridCols:   state.tileGridCols,
+        tileBuffer:     state.tileBuffer,
       }),
     }
   )

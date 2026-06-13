@@ -308,6 +308,7 @@ async def process_multi(
     configs: str = Form(...),
     arrangement: str = Form("horizontal"),  # "horizontal" | "vertical" | "grid"
     grid_cols: int = Form(2),
+    buffer: int = Form(1),  # blank bead cells between tiles
 ):
     """Process multiple images and combine them into one board."""
     cfg_list = json.loads(configs)
@@ -340,13 +341,16 @@ async def process_multi(
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Error processing {file.filename}: {e}")
 
-    # Combine into one board
+    # Combine into one board. `buffer` leaves that many blank bead cells
+    # between adjacent tiles (gaps render as the board background).
+    buffer = max(0, buffer)
     all_beads = []; col_offset = 0; row_offset = 0
     total_cols = 0; total_rows = 0
 
     if arrangement == "horizontal":
         total_rows = max(t["rows"] for t in processed)
-        for tile in processed:
+        for i, tile in enumerate(processed):
+            if i > 0: col_offset += buffer
             for b in tile["beads"]:
                 all_beads.append({**b, "col": b["col"] + col_offset})
             col_offset += tile["cols"]
@@ -354,7 +358,8 @@ async def process_multi(
 
     elif arrangement == "vertical":
         total_cols = max(t["cols"] for t in processed)
-        for tile in processed:
+        for i, tile in enumerate(processed):
+            if i > 0: row_offset += buffer
             for b in tile["beads"]:
                 all_beads.append({**b, "row": b["row"] + row_offset})
             row_offset += tile["rows"]
@@ -362,17 +367,18 @@ async def process_multi(
 
     else:  # grid
         n_cols = max(1, grid_cols)
-        col_cursor = [0]; row_cursor = [0]; max_row_height = [0]
-        tiles_per_row = {}
+        col_cursor = 0; row_cursor = 0; max_row_height = 0
         for i, tile in enumerate(processed):
-            gc = i % n_cols; gr = i // n_cols
-            if gc == 0 and i > 0:
-                row_cursor[0] += max_row_height[0]; max_row_height[0] = 0; col_cursor[0] = 0
-            co = col_cursor[0]; ro = row_cursor[0]
+            gc = i % n_cols
+            if gc == 0:
+                if i > 0: row_cursor += max_row_height + buffer
+                col_cursor = 0; max_row_height = 0
+            else:
+                col_cursor += buffer
             for b in tile["beads"]:
-                all_beads.append({**b, "col": b["col"]+co, "row": b["row"]+ro})
-            col_cursor[0] += tile["cols"]
-            max_row_height[0] = max(max_row_height[0], tile["rows"])
+                all_beads.append({**b, "col": b["col"]+col_cursor, "row": b["row"]+row_cursor})
+            col_cursor += tile["cols"]
+            max_row_height = max(max_row_height, tile["rows"])
         # Compute total dimensions
         max_col = max((b["col"] for b in all_beads), default=0) + 1
         max_row = max((b["row"] for b in all_beads), default=0) + 1

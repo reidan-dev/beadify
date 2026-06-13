@@ -11,6 +11,7 @@ export function SetupPanel({ onOpenCrop }) {
     deThreshold, setDeThreshold,
     tilesMode, setTilesMode, tiles, addTile, removeTile, updateTile, clearTiles,
     tileArrangement, setTileArrangement, tileGridCols, setTileGridCols,
+    tileBuffer, setTileBuffer,
     generating, generateBoard,
   } = useStore();
 
@@ -137,6 +138,12 @@ export function SetupPanel({ onOpenCrop }) {
                 value={tileGridCols} onChange={e => setTileGridCols(+e.target.value)} />
             </div>
           )}
+
+          <div className="panel-inline">
+            <span className="panel-field-label">Spacing (beads)</span>
+            <input className="num-input sm" type="number" min="0" max="50"
+              value={tileBuffer} onChange={e => setTileBuffer(+e.target.value)} />
+          </div>
         </div>
       )}
 
