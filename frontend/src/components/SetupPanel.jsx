@@ -9,6 +9,7 @@ export function SetupPanel({ onOpenCrop }) {
     beadSize, setBeadSize, forceCols, setForceCols, forceRows, setForceRows,
     useLanczos, setUseLanczos, dither, setDither, oneToOne, setOneToOne,
     deThreshold, setDeThreshold,
+    paletteMode, setPaletteMode, opacityLevel, setOpacityLevel,
     tilesMode, setTilesMode, tiles, addTile, removeTile, updateTile, clearTiles,
     tileArrangement, setTileArrangement, tileGridCols, setTileGridCols,
     tileBuffer, setTileBuffer,
@@ -146,6 +147,41 @@ export function SetupPanel({ onOpenCrop }) {
           </div>
         </div>
       )}
+
+      {/* ── Palette ───────────────────────────────────────────────────── */}
+      <div className="panel-section">
+        <span className="panel-section-label">Palette</span>
+        <div className="panel-inline">
+          <button
+            className={`btn btn-sm ${paletteMode === 'default' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setPaletteMode('default')} style={{ flex: 1 }}
+          >
+            Perler Beads
+          </button>
+          <button
+            className={`btn btn-sm ${paletteMode === 'miracle_works' ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setPaletteMode('miracle_works')} style={{ flex: 1 }}
+          >
+            Miracle Works (120)
+          </button>
+        </div>
+
+        {paletteMode === 'miracle_works' && (
+          <div className="panel-field">
+            <span className="panel-field-label">
+              Cell opacity ({opacityLevel}% — {opacityLevel < 100 ? 'lighter' : opacityLevel > 100 ? 'darker' : 'unchanged'})
+            </span>
+            <input type="range" min="0" max="200" step="1" value={opacityLevel}
+              onChange={e => setOpacityLevel(+e.target.value)}
+              style={{ width: '100%', accentColor: 'var(--accent)' }} />
+            {opacityLevel !== 100 && (
+              <button className="btn btn-ghost btn-xs" onClick={() => setOpacityLevel(100)} style={{ alignSelf: 'flex-start' }}>
+                Reset to 100%
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* ── Grid settings ─────────────────────────────────────────────── */}
       <div className="panel-section">

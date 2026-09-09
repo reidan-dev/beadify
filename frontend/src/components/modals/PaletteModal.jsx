@@ -18,7 +18,7 @@ function flattenPalette(data) {
 }
 
 export function PaletteModal({ onClose }) {
-  const { project, selectedLabel, swapColor } = useStore();
+  const { project, selectedLabel, swapColor, paletteMode } = useStore();
   const [palette,   setPalette]   = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [swapMode,  setSwapMode]  = useState(false);
@@ -26,11 +26,12 @@ export function PaletteModal({ onClose }) {
   const [search,    setSearch]    = useState('');
 
   useEffect(() => {
-    getPalette()
+    setLoading(true);
+    getPalette(paletteMode)
       .then(data => setPalette(flattenPalette(data)))
       .catch(() => setPalette([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [paletteMode]);
 
   // Labels currently used in the board
   const usedLabels = useMemo(() => {
@@ -59,7 +60,9 @@ export function PaletteModal({ onClose }) {
     <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-box" style={{ width: 680, maxHeight: '85vh' }}>
         <div className="modal-header">
-          <span className="modal-title">Bead Palette</span>
+          <span className="modal-title">
+            {paletteMode === 'miracle_works' ? 'Miracle Works Palette' : 'Bead Palette'}
+          </span>
           <button className="btn btn-ghost btn-sm btn-icon" onClick={onClose}>✕</button>
         </div>
 

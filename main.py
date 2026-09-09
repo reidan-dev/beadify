@@ -15,6 +15,10 @@ from scipy.spatial import KDTree
 
 BASE_DIR = Path(__file__).parent
 PALETTE_PATH = BASE_DIR / "color_palette.yaml"
+PALETTE_FILES = {
+    "default":       PALETTE_PATH,
+    "miracle_works": BASE_DIR / "color_palette_miracle_works.yaml",
+}
 
 IS_READONLY_HOST = bool(os.environ.get("VERCEL") or os.environ.get("BEADIFY_READONLY"))
 _WRITE_BASE = Path("/tmp") if IS_READONLY_HOST else BASE_DIR
@@ -150,7 +154,11 @@ class PaletteIndex:
         return result
 
 
-PALETTE = PaletteIndex(PALETTE_PATH)
+PALETTES = {name: PaletteIndex(path) for name, path in PALETTE_FILES.items()}
+
+
+def get_palette(name: str) -> "PaletteIndex":
+    return PALETTES.get(name, PALETTES["default"])
 
 
 # ---------------------------------------------------------------------------
@@ -191,8 +199,10 @@ def _process_one(
     de_threshold: float,
     col_offset: int = 0,
     row_offset: int = 0,
+    palette: "PaletteIndex" = None,
 ) -> dict:
     """Process a single PIL image and return {"cols", "rows", "beads", "img_small"}."""
+    palette = palette or PALETTES["default"]
     has_alpha = img.mode in ('RGBA', 'LA', 'PA')
     img = img.convert("RGBA")
 
@@ -215,7 +225,7 @@ def _process_one(
     img_array = np.array(img_small)
 
     if dither and not one_to_one:
-        beads = _floyd_steinberg(img_array, rows, cols, has_alpha, PALETTE)
+        beads = _floyd_steinberg(img_array, rows, cols, has_alpha, palette)
     else:
         pixel_grid = []; unique = set()
         for r in range(rows):
@@ -227,7 +237,7 @@ def _process_one(
                     px = tuple(int(v) for v in img_array[r, c, :3])
                     unique.add(px); row.append(px)
             pixel_grid.append(row)
-        p2p = PALETTE.assign_one_to_one(list(unique), de_threshold) if one_to_one else PALETTE.assign(list(unique))
+        p2p = palette.assign_one_to_one(list(unique), de_threshold) if one_to_one else palette.assign(list(unique))
         beads = []
         for r in range(rows):
             for c in range(cols):
@@ -273,6 +283,7 @@ async def process_image(
     de_threshold: float = Form(10.0),
     dither: bool = Form(False),
     use_lanczos: bool = Form(True),
+    palette: str = Form("default"),
 ):
     if bead_size < 1:
         raise HTTPException(status_code=400, detail="bead_size must be >= 1")
@@ -288,7 +299,8 @@ async def process_image(
         if x1>x0 and y1>y0: img = img.crop((x0, y0, x1, y1))
 
     result = _process_one(img, bead_size, force_cols, force_rows,
-                          dither, use_lanczos, one_to_one, de_threshold)
+                          dither, use_lanczos, one_to_one, de_threshold,
+                          palette=get_palette(palette))
 
     stem = Path(file.filename).stem if file.filename else "image"
     safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in stem)
@@ -309,12 +321,14 @@ async def process_multi(
     arrangement: str = Form("horizontal"),  # "horizontal" | "vertical" | "grid"
     grid_cols: int = Form(2),
     buffer: int = Form(1),  # blank bead cells between tiles
+    palette: str = Form("default"),
 ):
     """Process multiple images and combine them into one board."""
     cfg_list = json.loads(configs)
     if len(cfg_list) != len(files):
         raise HTTPException(status_code=400, detail="configs length must match files count")
 
+    palette_obj = get_palette(palette)
     processed = []
     for file, cfg in zip(files, cfg_list):
         data = await file.read()
@@ -329,6 +343,7 @@ async def process_multi(
                 use_lanczos=cfg.get("use_lanczos", True),
                 one_to_one=cfg.get("one_to_one", False),
                 de_threshold=cfg.get("de_threshold", 10.0),
+                palette=palette_obj,
             )
             stem = Path(file.filename).stem if file.filename else f"tile_{len(processed)}"
             safe = "".join(ch if ch.isalnum() or ch in "-_" else "_" for ch in stem)
@@ -393,8 +408,9 @@ async def process_multi(
 
 
 @app.get("/palette")
-def get_palette():
-    with open(PALETTE_PATH) as f:
+def get_palette_route(palette: str = "default"):
+    path = PALETTE_FILES.get(palette, PALETTE_PATH)
+    with open(path) as f:
         raw = yaml.safe_load(f)
     if all(isinstance(v, dict) for v in raw.values()):
         return JSONResponse(raw)

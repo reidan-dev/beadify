@@ -25,6 +25,27 @@ export function hexToRgb(hex) {
   ];
 }
 
+/** Convert [r, g, b] numbers to a hex color string */
+export function rgbToHex([r, g, b]) {
+  const clamp = (v) => Math.max(0, Math.min(255, Math.round(v)));
+  return '#' + [r, g, b].map(v => clamp(v).toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Blend a hex color toward white or black to simulate marker opacity.
+ * opacity: 0-200, 100 = unchanged, 0 = fully lightened (white), 200 = fully darkened (black).
+ */
+export function applyOpacity(hex, opacity = 100) {
+  if (opacity === 100) return hex;
+  const [r, g, b] = hexToRgb(hex);
+  if (opacity < 100) {
+    const t = Math.max(0, Math.min(100, opacity)) / 100;
+    return rgbToHex([r + (255 - r) * (1 - t), g + (255 - g) * (1 - t), b + (255 - b) * (1 - t)]);
+  }
+  const frac = (Math.max(100, Math.min(200, opacity)) - 100) / 100;
+  return rgbToHex([r * (1 - frac), g * (1 - frac), b * (1 - frac)]);
+}
+
 /** Build an ImageData-compatible canvas from a loaded HTMLImageElement,
  *  applying crop, flip, and rotation transforms */
 export function getTransformedCanvas(image, { cropSelection, flipX, flipY, rotation }) {

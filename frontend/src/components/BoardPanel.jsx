@@ -9,6 +9,7 @@ export function BoardPanel() {
     cellPx, setCellPx, gapPx, setGapPx,
     roundBeads, toggleRoundBeads, showAllMode, toggleShowAll,
     boardBg, setBoardBg,
+    paletteMode, opacityLevel, setOpacityLevel,
     activeTool, setActiveTool,
     showRulers, toggleRulers, rulerRowOffset, setRulerRowOffset, rulerColOffset, setRulerColOffset,
     guideN, setGuideN, guideVisible, toggleGuideVisible, guideLocked, toggleGuideLock,
@@ -161,6 +162,24 @@ export function BoardPanel() {
             </>
           )}
         </div>
+
+        {paletteMode === 'miracle_works' && (
+          <div className="toolbar-group">
+            <span className="toolbar-group-label">Opacity</span>
+            <input
+              type="range" min="0" max="200" step="1" value={opacityLevel}
+              onChange={e => setOpacityLevel(+e.target.value)}
+              title="Lighten (<100%) or darken (>100%) all cell colors"
+              style={{ width: 110, accentColor: 'var(--accent)' }}
+            />
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', minWidth: 34, textAlign: 'center' }}>
+              {opacityLevel}%
+            </span>
+            {opacityLevel !== 100 && (
+              <button className="btn btn-ghost btn-xs" onClick={() => setOpacityLevel(100)} title="Reset opacity">⟲</button>
+            )}
+          </div>
+        )}
 
         <div className="toolbar-group">
           <span className="toolbar-group-label">Guide {guideN > 0 ? `(${guideN}×${guideN})` : ''}</span>

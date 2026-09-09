@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { saveProgress as apiSave, loadProgress as apiLoad,
          processImage as apiProcess, processMulti as apiProcessMulti } from './api.js';
-import { getTransformedCanvas } from './utils.js';
+import { getTransformedCanvas, applyOpacity } from './utils.js';
 
 export const useStore = create(
   persist(
@@ -15,15 +15,23 @@ export const useStore = create(
       beadMap:  new Map(),
 
       setProject(data) {
+        const { paletteMode, opacityLevel } = get();
+        const beads = data.beads.map(b => {
+          if (b.transparent) return b;
+          const baseColor = b.color;
+          const color = paletteMode === 'miracle_works' ? applyOpacity(baseColor, opacityLevel) : baseColor;
+          return { ...b, baseColor, color };
+        });
+        const project = { ...data, beads };
         const doneSet = new Set(
-          data.beads.filter(b => b.done && !b.transparent).map(b => `${b.row}:${b.col}`)
+          beads.filter(b => b.done && !b.transparent).map(b => `${b.row}:${b.col}`)
         );
         const beadMap = new Map();
-        for (const b of data.beads) {
+        for (const b of beads) {
           if (!b.transparent) beadMap.set(`${b.row}:${b.col}`, b);
         }
         set({
-          project: data, doneSet, beadMap,
+          project, doneSet, beadMap,
           activeTab: 'board',
           selectedLabel: null, hiddenLabels: new Set(),
           markedRows: new Set(), markedCols: new Set(),
@@ -31,6 +39,25 @@ export const useStore = create(
           guideOriginCol: null, guideOriginRow: null,
           undoStack: [], redoStack: [],
         });
+      },
+
+      // Re-derive every bead's displayed color from its matched base palette
+      // color — used when the opacity slider or palette mode changes so the
+      // board updates live without a round-trip to the backend.
+      _recomputeColors() {
+        const { project, paletteMode, opacityLevel } = get();
+        if (!project) return;
+        const beads = project.beads.map(b => {
+          if (b.transparent) return b;
+          const base = b.baseColor ?? b.color;
+          const color = paletteMode === 'miracle_works' ? applyOpacity(base, opacityLevel) : base;
+          return { ...b, baseColor: base, color };
+        });
+        const beadMap = new Map();
+        for (const b of beads) {
+          if (!b.transparent) beadMap.set(`${b.row}:${b.col}`, b);
+        }
+        set({ project: { ...project, beads }, beadMap });
       },
 
       // ===================================================================
@@ -61,6 +88,7 @@ export const useStore = create(
             fd.append('buffer', String(s.tileBuffer));
             if (s.tileArrangement === 'grid') fd.append('grid_cols', String(s.tileGridCols));
             fd.append('configs', JSON.stringify(configs));
+            fd.append('palette', s.paletteMode);
             for (const tile of s.tiles) {
               const transformed = getTransformedCanvas(tile.image, {
                 cropSelection: tile.cropSelection ?? null,
@@ -89,6 +117,7 @@ export const useStore = create(
             fd.append('use_lanczos',  String(s.useLanczos));
             fd.append('one_to_one',   String(s.oneToOne));
             fd.append('de_threshold', String(s.deThreshold));
+            fd.append('palette',      s.paletteMode);
             const data = await apiProcess(fd);
             get().setProject(data);
             get().setStatus(`Board ready: ${data.width}×${data.height} (${data.beads.filter(b => !b.transparent).length} beads)`, 'ok');
@@ -160,6 +189,23 @@ export const useStore = create(
       setDither(v)      { set({ dither: v, ...(v ? { oneToOne: false } : {}) }); },
       setOneToOne(v)    { set({ oneToOne: v, ...(v ? { dither: false } : {}) }); },
       setDeThreshold(v) { set({ deThreshold: v }); },
+
+      // ===================================================================
+      // Palette mode — 'default' (Perler beads) or 'miracle_works'
+      // (Miracle Works acrylic marker 120-color chart, with an opacity
+      // slider to lighten/darken the matched cell colors after the fact)
+      // ===================================================================
+      paletteMode:  'default',
+      opacityLevel: 100, // 0-200, 100 = unchanged, <100 lighter, >100 darker
+
+      setPaletteMode(mode) {
+        set({ paletteMode: mode, ...(mode !== 'miracle_works' ? { opacityLevel: 100 } : {}) });
+        get()._recomputeColors();
+      },
+      setOpacityLevel(v) {
+        set({ opacityLevel: Math.max(0, Math.min(200, v)) });
+        get()._recomputeColors();
+      },
 
       // ===================================================================
       // Multi-image tiles
@@ -453,15 +499,13 @@ export const useStore = create(
       },
 
       swapColor(oldLabel, newLabel, newHex) {
-        const { project, beadMap } = get();
+        const { project, beadMap, paletteMode, opacityLevel } = get();
         if (!project) return;
-        const updatedBeads = project.beads.map(b =>
-          b.label === oldLabel ? { ...b, label: newLabel, color: newHex } : b
-        );
+        const color = paletteMode === 'miracle_works' ? applyOpacity(newHex, opacityLevel) : newHex;
+        const swap = b => b.label === oldLabel ? { ...b, label: newLabel, baseColor: newHex, color } : b;
+        const updatedBeads = project.beads.map(swap);
         const newBeadMap = new Map();
-        for (const [k, b] of beadMap) {
-          newBeadMap.set(k, b.label === oldLabel ? { ...b, label: newLabel, color: newHex } : b);
-        }
+        for (const [k, b] of beadMap) newBeadMap.set(k, swap(b));
         set({ project: { ...project, beads: updatedBeads }, beadMap: newBeadMap });
         get().saveProgress();
       },
@@ -536,6 +580,8 @@ export const useStore = create(
         dither:         state.dither,
         oneToOne:       state.oneToOne,
         deThreshold:    state.deThreshold,
+        paletteMode:    state.paletteMode,
+        opacityLevel:   state.opacityLevel,
         guideN:         state.guideN,
         guideColor:     state.guideColor,
         guideVisible:   state.guideVisible,

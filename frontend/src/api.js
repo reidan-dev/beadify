@@ -24,8 +24,8 @@ export async function processMulti(formData) {
   return apiFetch('/process-multi', { method: 'POST', body: formData });
 }
 
-export async function getPalette() {
-  return apiFetch('/palette');
+export async function getPalette(palette = 'default') {
+  return apiFetch(`/palette?palette=${encodeURIComponent(palette)}`);
 }
 
 export async function saveProgress(name, project) {

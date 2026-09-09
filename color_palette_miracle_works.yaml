@@ -1,0 +1,125 @@
+# Beadify color palette - Miracle Works Acrylic Marker (120 colors)
+# Transcribed from miracle_works_120_palette.png (hex sampled from product chart)
+# Format: "swatch number": "#RRGGBB" # Name
+
+miracle_works:
+  "1":   "#0F0A09" # Black
+  "2":   "#47396E" # Deep Violet
+  "3":   "#5EAD6A" # Leaf Green
+  "4":   "#D95656" # Coral Red
+  "5":   "#CE4C51" # Crimson
+  "6":   "#E4E8E4" # White
+  "7":   "#0D6264" # Deep Teal
+  "8":   "#684E48" # Taupe Brown
+  "9":   "#EABAC6" # Soft Pink
+  "10":  "#E0C75E" # Golden Yellow
+  "11":  "#29538D" # Cobalt Blue
+  "12":  "#489EC8" # Sky Blue
+  "13":  "#54AA9A" # Sea Green
+  "14":  "#589D9C" # Teal
+  "15":  "#364266" # Dark Slate Blue
+  "16":  "#DCC065" # Gold
+  "17":  "#E4AE76" # Apricot
+  "18":  "#AA8F66" # Tan
+  "19":  "#B7B6B5" # Light Gray
+  "20":  "#986A9B" # Mauve Purple
+  "21":  "#CF84AA" # Rose Pink
+  "22":  "#DCA5AC" # Dusty Rose
+  "23":  "#585E5B" # Charcoal Gray
+  "24":  "#94705B" # Chestnut
+  "25":  "#B2B4AA" # Stone Gray
+  "26":  "#9A8B74" # Warm Taupe
+  "27":  "#668CBA" # Steel Blue
+  "28":  "#81867C" # Sage Gray
+  "29":  "#484946" # Charcoal
+  "30":  "#4A4D4E" # Dark Slate
+  "31":  "#CEA2C5" # Lilac
+  "32":  "#C66E80" # Mauve Rose
+  "33":  "#D18650" # Caramel
+  "34":  "#8C7932" # Olive
+  "35":  "#A0AC68" # Moss Green
+  "36":  "#A4C471" # Apple Green
+  "37":  "#9ABE6C" # Lime Green
+  "38":  "#74AE92" # Jade Green
+  "39":  "#78B19B" # Seafoam
+  "40":  "#7EA890" # Sage Green
+  "41":  "#90808C" # Mauve Gray
+  "42":  "#E9BAC8" # Baby Pink
+  "43":  "#EAC4A3" # Peach
+  "44":  "#E4CA92" # Sand
+  "45":  "#D3B389" # Light Tan
+  "46":  "#E3CA96" # Wheat
+  "47":  "#A1968C" # Greige
+  "48":  "#546B74" # Slate Teal
+  "49":  "#C3C4C0" # Silver Gray
+  "50":  "#D3D673" # Chartreuse
+  "51":  "#40A78F" # Emerald Teal
+  "52":  "#6A83A8" # Slate Blue
+  "53":  "#1B7D90" # Teal Blue
+  "54":  "#D6ACC3" # Mauve Pink
+  "55":  "#359083" # Pine Teal
+  "56":  "#A29E85" # Khaki
+  "57":  "#62ADC9" # Cerulean
+  "58":  "#709376" # Fern Gray
+  "59":  "#4C7868" # Forest Green
+  "60":  "#B4D4C4" # Mint
+  "61":  "#A68EAB" # Dusty Lilac
+  "62":  "#AA7EA2" # Orchid Mauve
+  "63":  "#BFBEBD" # Ash Gray
+  "64":  "#D4BBA8" # Beige
+  "65":  "#ECD2C7" # Pale Peach
+  "66":  "#DCA5AA" # Dusty Rose
+  "67":  "#9BB2B6" # Misty Blue
+  "68":  "#98B8CB" # Powder Blue
+  "69":  "#6098A6" # Steel Teal
+  "70":  "#A6686B" # Brick Rose
+  "71":  "#CE6C6B" # Coral
+  "72":  "#EBBED3" # Cotton Candy
+  "73":  "#B4ADC8" # Lavender Gray
+  "74":  "#7AAB9A" # Sage Teal
+  "75":  "#DBB093" # Warm Sand
+  "76":  "#6AC6D2" # Aqua
+  "77":  "#7EB0C5" # Cornflower
+  "78":  "#F4DCD6" # Blush
+  "79":  "#A59098" # Mauve Taupe
+  "80":  "#D6D7A2" # Pale Lime
+  "81":  "#E1A49A" # Salmon
+  "82":  "#BCC8CC" # Cloud Gray
+  "83":  "#28784D" # Emerald Green
+  "84":  "#B2B89E" # Sage
+  "85":  "#366EA3" # Denim Blue
+  "86":  "#EFECDB" # Ivory
+  "87":  "#569786" # Teal Green
+  "88":  "#CCCE9B" # Pale Olive
+  "89":  "#EABC94" # Peach Tan
+  "90":  "#6D6E6A" # Slate Gray
+  "91":  "#D8AD96" # Tawny
+  "92":  "#AAB2AF" # Sage Gray
+  "93":  "#B6B0C4" # Periwinkle Gray
+  "94":  "#E5A8C4" # Bubblegum
+  "95":  "#D7D5DC" # Pale Lilac
+  "96":  "#99907A" # Taupe
+  "97":  "#9C6C98" # Plum
+  "98":  "#506394" # Indigo Blue
+  "99":  "#A6B18E" # Olive Sage
+  "100": "#987F70" # Cocoa Taupe
+  "101": "#D466A2" # Magenta Pink
+  "102": "#979698" # Medium Gray
+  "103": "#8B9461" # Olive Green
+  "104": "#587282" # Steel Slate
+  "105": "#5D8C74" # Jade
+  "106": "#C185A7" # Orchid
+  "107": "#C68878" # Terracotta
+  "108": "#9C8286" # Rosy Taupe
+  "109": "#7C675D" # Coffee
+  "110": "#49889C" # Lagoon
+  "111": "#9491C2" # Periwinkle
+  "112": "#A38178" # Clay
+  "113": "#ECA4C5" # Pink
+  "114": "#BD9E8D" # Mushroom
+  "115": "#C65E92" # Raspberry
+  "116": "#8B867C" # Warm Gray
+  "117": "#A07E46" # Bronze
+  "118": "#826358" # Cocoa
+  "119": "#B1AF9C" # Stone
+  "120": "#9A887C" # Mushroom Taupe
