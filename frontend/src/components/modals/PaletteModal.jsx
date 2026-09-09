@@ -1,22 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useStore } from '../../store.js';
 import { getPalette } from '../../api.js';
-import { drawBoardThumbnail, applyOpacity } from '../../utils.js';
-
-// The /palette endpoint returns groups of { label: hex } maps
-// (e.g. { group_1: { B3: "#A2E4B8" } }). Flatten to a [{ label, hex, group }] list.
-function flattenPalette(data) {
-  if (Array.isArray(data)) return data;
-  if (!data || typeof data !== 'object') return [];
-  const out = [];
-  for (const [group, entries] of Object.entries(data)) {
-    if (!entries || typeof entries !== 'object') continue;
-    for (const [label, hex] of Object.entries(entries)) {
-      out.push({ label, hex: String(hex), group });
-    }
-  }
-  return out;
-}
+import { drawBoardThumbnail, applyOpacity, flattenPalette } from '../../utils.js';
 
 export function PaletteModal({ onClose }) {
   const { project, selectedLabel, swapColor, paletteMode, opacityLevel, boardBg } = useStore();

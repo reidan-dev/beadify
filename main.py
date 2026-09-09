@@ -43,6 +43,10 @@ def hex_to_rgb(hex_str: str) -> tuple[int, int, int]:
     return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
+def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
+    return "#{:02X}{:02X}{:02X}".format(*(max(0, min(255, int(round(v)))) for v in rgb))
+
+
 def rgb_to_lab(rgb: tuple[int, int, int]) -> tuple[float, float, float]:
     r, g, b = [x / 255.0 for x in rgb]
 
@@ -177,7 +181,7 @@ def _floyd_steinberg(img_array, rows, cols, has_transparency, palette):
             old_px = tuple(int(np.clip(arr[r, c, i], 0, 255)) for i in range(3))
             label, hex_color = palette.nearest(old_px)
             beads.append({"row": r, "col": c, "label": label, "color": hex_color,
-                           "done": False, "transparent": False})
+                           "done": False, "transparent": False, "orig": rgb_to_hex(old_px)})
             new_rgb = np.array(hex_to_rgb(hex_color), dtype=np.float64)
             err = arr[r, c] - new_rgb
             if c+1 < cols: arr[r, c+1] = np.clip(arr[r, c+1] + err*7/16, 0, 255)
@@ -248,7 +252,8 @@ def _process_one(
                 else:
                     label, hex_color = p2p[px]
                     beads.append({"row": r+row_offset, "col": c+col_offset,
-                                   "label": label, "color": hex_color, "done": False, "transparent": False})
+                                   "label": label, "color": hex_color, "done": False, "transparent": False,
+                                   "orig": rgb_to_hex(px)})
 
     # Apply offsets (dither path produces 0-based; apply offset here)
     if dither and not one_to_one:

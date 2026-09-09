@@ -166,6 +166,9 @@ export function SetupPanel({ onOpenCrop }) {
             <input type="range" min="0" max="100" step="1" value={opacityLevel}
               onChange={e => setOpacityLevel(+e.target.value)}
               style={{ width: '100%', accentColor: 'var(--accent)' }} />
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+              Each cell is re-matched to the nearest real swatch at this opacity.
+            </span>
             {opacityLevel !== 100 && (
               <button className="btn btn-ghost btn-xs" onClick={() => setOpacityLevel(100)} style={{ alignSelf: 'flex-start' }}>
                 Reset to 100%

@@ -1,12 +1,19 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { saveProgress as apiSave, loadProgress as apiLoad,
-         processImage as apiProcess, processMulti as apiProcessMulti } from './api.js';
-import { getTransformedCanvas, applyOpacity } from './utils.js';
+         processImage as apiProcess, processMulti as apiProcessMulti, getPalette as apiGetPalette } from './api.js';
+import { getTransformedCanvas, applyOpacity, flattenPalette, buildPaletteLabCache,
+         nearestPaletteEntry, debounce } from './utils.js';
 
 export const useStore = create(
   persist(
-    (set, get) => ({
+    (set, get) => {
+      // Recomputing nearest-palette matches for every bead is cheap for
+      // typical boards but can take a few hundred ms on very large ones —
+      // debounce it so dragging the opacity slider stays smooth.
+      const debouncedRecompute = debounce(() => get()._recomputeColors(), 120);
+
+      return {
       // ===================================================================
       // Project
       // ===================================================================
@@ -15,13 +22,7 @@ export const useStore = create(
       beadMap:  new Map(),
 
       setProject(data) {
-        const { paletteMode, opacityLevel } = get();
-        const beads = data.beads.map(b => {
-          if (b.transparent) return b;
-          const baseColor = b.color;
-          const color = paletteMode === 'miracle_works' ? applyOpacity(baseColor, opacityLevel) : baseColor;
-          return { ...b, baseColor, color };
-        });
+        const beads = data.beads.map(b => b.transparent ? b : { ...b, baseColor: b.orig ?? b.color });
         const project = { ...data, beads };
         const doneSet = new Set(
           beads.filter(b => b.done && !b.transparent).map(b => `${b.row}:${b.col}`)
@@ -39,19 +40,25 @@ export const useStore = create(
           guideOriginCol: null, guideOriginRow: null,
           undoStack: [], redoStack: [],
         });
+        get()._recomputeColors();
       },
 
-      // Re-derive every bead's displayed color from its matched base palette
-      // color — used when the opacity slider or palette mode changes so the
-      // board updates live without a round-trip to the backend.
+      // Re-derive every bead's label/color by re-matching its base (original
+      // pixel, or swapped-in) color — lightened by the current opacity — against
+      // the active palette. This makes the opacity slider pick a genuinely
+      // different real swatch per cell, not just a synthetic tint, and runs
+      // fully client-side so it updates live without hitting the backend.
       _recomputeColors() {
-        const { project, paletteMode, opacityLevel } = get();
+        const { project, paletteMode, opacityLevel, paletteLabCache } = get();
         if (!project) return;
+        if (paletteMode !== 'miracle_works' || paletteLabCache.length === 0) return;
         const beads = project.beads.map(b => {
           if (b.transparent) return b;
           const base = b.baseColor ?? b.color;
-          const color = paletteMode === 'miracle_works' ? applyOpacity(base, opacityLevel) : base;
-          return { ...b, baseColor: base, color };
+          const lightened = applyOpacity(base, opacityLevel);
+          const match = nearestPaletteEntry(lightened, paletteLabCache);
+          if (!match) return b;
+          return { ...b, baseColor: base, label: match.label, color: match.hex };
         });
         const beadMap = new Map();
         for (const b of beads) {
@@ -61,12 +68,30 @@ export const useStore = create(
       },
 
       // ===================================================================
+      // Palette color cache — used by _recomputeColors to re-match colors
+      // against the active palette without a backend round-trip.
+      // ===================================================================
+      paletteColors:     [],
+      paletteLabCache:   [],
+      paletteColorsMode: null,
+
+      async loadPaletteColors(mode) {
+        if (get().paletteColorsMode === mode && get().paletteColors.length > 0) return;
+        try {
+          const data = await apiGetPalette(mode);
+          const flat = flattenPalette(data);
+          set({ paletteColors: flat, paletteLabCache: buildPaletteLabCache(flat), paletteColorsMode: mode });
+        } catch { /* leave cache as-is; recompute stays a no-op */ }
+      },
+
+      // ===================================================================
       // Board generation (shared by Setup panel + Board "Regenerate")
       // ===================================================================
       generating: false,
 
       async generateBoard() {
         const s = get();
+        if (s.paletteMode === 'miracle_works') await get().loadPaletteColors(s.paletteMode);
         set({ generating: true });
         try {
           if (s.tilesMode) {
@@ -192,19 +217,22 @@ export const useStore = create(
 
       // ===================================================================
       // Palette mode — 'default' (Perler beads) or 'miracle_works'
-      // (Miracle Works acrylic marker 120-color chart, with an opacity
-      // slider to lighten/darken the matched cell colors after the fact)
+      // (Miracle Works acrylic marker 120-color chart). Opacity lightens
+      // each cell's original source color and re-matches it against the
+      // palette, so it picks a genuinely different real swatch, not a
+      // synthetic tint of the one already assigned.
       // ===================================================================
       paletteMode:  'default',
-      opacityLevel: 100, // 0-100, 100 = unchanged (current color), lower = lighter
+      opacityLevel: 100, // 0-100, 100 = current best match, lower = lighter → re-matched
 
-      setPaletteMode(mode) {
+      async setPaletteMode(mode) {
         set({ paletteMode: mode, ...(mode !== 'miracle_works' ? { opacityLevel: 100 } : {}) });
+        if (mode === 'miracle_works') await get().loadPaletteColors(mode);
         get()._recomputeColors();
       },
       setOpacityLevel(v) {
         set({ opacityLevel: Math.max(0, Math.min(100, v)) });
-        get()._recomputeColors();
+        debouncedRecompute();
       },
 
       // ===================================================================
@@ -565,7 +593,8 @@ export const useStore = create(
           return false;
         }
       },
-    }),
+      };
+    },
     {
       name: 'beadify-settings',
       // Only persist plain-value settings — no HTMLImageElement, Set, Map, or project data

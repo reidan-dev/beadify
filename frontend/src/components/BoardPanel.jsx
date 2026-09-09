@@ -169,7 +169,7 @@ export function BoardPanel() {
             <input
               type="range" min="0" max="100" step="1" value={opacityLevel}
               onChange={e => setOpacityLevel(+e.target.value)}
-              title="Lighten all cell colors (100% = current color)"
+              title="Lighten cells and re-match each to the nearest real swatch (100% = current color)"
               style={{ width: 110, accentColor: 'var(--accent)' }}
             />
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', minWidth: 34, textAlign: 'center' }}>
