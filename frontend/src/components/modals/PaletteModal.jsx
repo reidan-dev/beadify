@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useStore } from '../../store.js';
 import { getPalette } from '../../api.js';
+import { drawBoardThumbnail, applyOpacity } from '../../utils.js';
 
 // The /palette endpoint returns groups of { label: hex } maps
 // (e.g. { group_1: { B3: "#A2E4B8" } }). Flatten to a [{ label, hex, group }] list.
@@ -18,12 +19,16 @@ function flattenPalette(data) {
 }
 
 export function PaletteModal({ onClose }) {
-  const { project, selectedLabel, swapColor, paletteMode } = useStore();
+  const { project, selectedLabel, swapColor, paletteMode, opacityLevel, boardBg } = useStore();
   const [palette,   setPalette]   = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [swapMode,  setSwapMode]  = useState(false);
   const [swapFrom,  setSwapFrom]  = useState(selectedLabel ?? null);
   const [search,    setSearch]    = useState('');
+  const [hoverEntry, setHoverEntry] = useState(null); // palette entry being previewed
+
+  const beforeCanvasRef = useRef(null);
+  const afterCanvasRef  = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -49,6 +54,30 @@ export function PaletteModal({ onClose }) {
     const q = search.toLowerCase();
     return !q || c.label.toLowerCase().includes(q) || c.hex.toLowerCase().includes(q);
   });
+
+  const showPreview = swapMode && !!swapFrom && !!project;
+
+  // Reset any pending preview when the swap target or mode changes.
+  useEffect(() => { setHoverEntry(null); }, [swapFrom, swapMode]);
+
+  // "Before" thumbnail — the board as it stands now.
+  useEffect(() => {
+    if (!showPreview) return;
+    drawBoardThumbnail(beforeCanvasRef.current, project, { boardBg });
+  }, [showPreview, project, boardBg]);
+
+  // "After" thumbnail — the board with the hovered swatch applied to swapFrom.
+  useEffect(() => {
+    if (!showPreview) return;
+    const overrideColor = hoverEntry
+      ? (paletteMode === 'miracle_works' ? applyOpacity(hoverEntry.hex, opacityLevel) : hoverEntry.hex)
+      : null;
+    drawBoardThumbnail(afterCanvasRef.current, project, {
+      boardBg,
+      overrideLabel: hoverEntry ? swapFrom : null,
+      overrideColor,
+    });
+  }, [showPreview, project, boardBg, hoverEntry, swapFrom, paletteMode, opacityLevel]);
 
   const handlePaletteClick = (entry) => {
     if (!swapMode || !swapFrom) return;
@@ -98,10 +127,27 @@ export function PaletteModal({ onClose }) {
                   }} />
                 )}
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                  → click a color below to swap
+                  → hover a color below to preview, click to swap
                 </span>
               </>
             )}
+          </div>
+        )}
+
+        {/* Before / after board preview */}
+        {showPreview && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div className="modal-hint" style={{ marginBottom: 4 }}>Before</div>
+              <canvas ref={beforeCanvasRef} style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 4 }} />
+            </div>
+            <span style={{ color: 'var(--text-muted)', fontSize: 'var(--text-lg)' }}>→</span>
+            <div style={{ textAlign: 'center' }}>
+              <div className="modal-hint" style={{ marginBottom: 4 }}>
+                {hoverEntry ? `After (→ ${hoverEntry.label})` : 'After (hover a color)'}
+              </div>
+              <canvas ref={afterCanvasRef} style={{ display: 'block', border: '1px solid var(--border)', borderRadius: 4 }} />
+            </div>
           </div>
         )}
 
@@ -128,6 +174,8 @@ export function PaletteModal({ onClose }) {
                     key={entry.label}
                     className={`palette-card ${inUse ? 'used' : ''}`}
                     onClick={() => handlePaletteClick(entry)}
+                    onMouseEnter={() => showPreview && setHoverEntry(entry)}
+                    onMouseLeave={() => showPreview && setHoverEntry(null)}
                     style={{ cursor: swapMode && swapFrom ? 'pointer' : 'default' }}
                     title={swapMode && swapFrom ? `Swap to ${entry.label}` : entry.label}
                   >

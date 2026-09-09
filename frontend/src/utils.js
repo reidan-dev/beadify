@@ -109,6 +109,28 @@ export function computeGridDims(image, { cropSelection, rotation, beadSize, forc
   return { cols: Math.max(1, Math.floor(iw / bs)), rows: Math.max(1, Math.floor(ih / bs)) };
 }
 
+/**
+ * Draw a scaled-down thumbnail of a board onto a canvas element.
+ * Pass overrideLabel/overrideColor to preview a color swap without mutating
+ * the project — used by the palette swap "before/after" preview.
+ */
+export function drawBoardThumbnail(canvas, project, { boardBg = '#000000', overrideLabel = null, overrideColor = null, maxSize = 160 } = {}) {
+  if (!canvas || !project) return;
+  const cols = project.width, rows = project.height;
+  if (!cols || !rows) return;
+  const cell = Math.max(1, Math.min(maxSize / cols, maxSize / rows));
+  canvas.width  = Math.max(1, Math.round(cols * cell));
+  canvas.height = Math.max(1, Math.round(rows * cell));
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = boardBg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (const b of project.beads) {
+    if (b.transparent) continue;
+    ctx.fillStyle = (overrideLabel && b.label === overrideLabel) ? overrideColor : b.color;
+    ctx.fillRect(b.col * cell, b.row * cell, cell, cell);
+  }
+}
+
 /** Simple debounce */
 export function debounce(fn, ms) {
   let t;
