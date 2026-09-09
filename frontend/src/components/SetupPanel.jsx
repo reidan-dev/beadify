@@ -151,27 +151,19 @@ export function SetupPanel({ onOpenCrop }) {
       {/* ── Palette ───────────────────────────────────────────────────── */}
       <div className="panel-section">
         <span className="panel-section-label">Palette</span>
-        <div className="panel-inline">
-          <button
-            className={`btn btn-sm ${paletteMode === 'default' ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setPaletteMode('default')} style={{ flex: 1 }}
-          >
-            Perler Beads
-          </button>
-          <button
-            className={`btn btn-sm ${paletteMode === 'miracle_works' ? 'btn-primary' : 'btn-ghost'}`}
-            onClick={() => setPaletteMode('miracle_works')} style={{ flex: 1 }}
-          >
-            Miracle Works (120)
-          </button>
+        <div className="panel-field">
+          <select className="input" value={paletteMode} onChange={e => setPaletteMode(e.target.value)}>
+            <option value="default">Perler Beads</option>
+            <option value="miracle_works">Miracle Works Acrylic Marker (120)</option>
+          </select>
         </div>
 
         {paletteMode === 'miracle_works' && (
           <div className="panel-field">
             <span className="panel-field-label">
-              Cell opacity ({opacityLevel}% — {opacityLevel < 100 ? 'lighter' : opacityLevel > 100 ? 'darker' : 'unchanged'})
+              Cell opacity ({opacityLevel}% — {opacityLevel < 100 ? 'lighter' : 'current color'})
             </span>
-            <input type="range" min="0" max="200" step="1" value={opacityLevel}
+            <input type="range" min="0" max="100" step="1" value={opacityLevel}
               onChange={e => setOpacityLevel(+e.target.value)}
               style={{ width: '100%', accentColor: 'var(--accent)' }} />
             {opacityLevel !== 100 && (

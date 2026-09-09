@@ -32,18 +32,14 @@ export function rgbToHex([r, g, b]) {
 }
 
 /**
- * Blend a hex color toward white or black to simulate marker opacity.
- * opacity: 0-200, 100 = unchanged, 0 = fully lightened (white), 200 = fully darkened (black).
+ * Blend a hex color toward white to simulate marker opacity.
+ * opacity: 0-100, 100 = unchanged (current/original color), 0 = fully lightened (white).
  */
 export function applyOpacity(hex, opacity = 100) {
-  if (opacity === 100) return hex;
+  if (opacity >= 100) return hex;
+  const t = Math.max(0, Math.min(100, opacity)) / 100;
   const [r, g, b] = hexToRgb(hex);
-  if (opacity < 100) {
-    const t = Math.max(0, Math.min(100, opacity)) / 100;
-    return rgbToHex([r + (255 - r) * (1 - t), g + (255 - g) * (1 - t), b + (255 - b) * (1 - t)]);
-  }
-  const frac = (Math.max(100, Math.min(200, opacity)) - 100) / 100;
-  return rgbToHex([r * (1 - frac), g * (1 - frac), b * (1 - frac)]);
+  return rgbToHex([r + (255 - r) * (1 - t), g + (255 - g) * (1 - t), b + (255 - b) * (1 - t)]);
 }
 
 /** Build an ImageData-compatible canvas from a loaded HTMLImageElement,

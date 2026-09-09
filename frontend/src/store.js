@@ -196,14 +196,14 @@ export const useStore = create(
       // slider to lighten/darken the matched cell colors after the fact)
       // ===================================================================
       paletteMode:  'default',
-      opacityLevel: 100, // 0-200, 100 = unchanged, <100 lighter, >100 darker
+      opacityLevel: 100, // 0-100, 100 = unchanged (current color), lower = lighter
 
       setPaletteMode(mode) {
         set({ paletteMode: mode, ...(mode !== 'miracle_works' ? { opacityLevel: 100 } : {}) });
         get()._recomputeColors();
       },
       setOpacityLevel(v) {
-        set({ opacityLevel: Math.max(0, Math.min(200, v)) });
+        set({ opacityLevel: Math.max(0, Math.min(100, v)) });
         get()._recomputeColors();
       },
 

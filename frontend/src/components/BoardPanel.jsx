@@ -167,9 +167,9 @@ export function BoardPanel() {
           <div className="toolbar-group">
             <span className="toolbar-group-label">Opacity</span>
             <input
-              type="range" min="0" max="200" step="1" value={opacityLevel}
+              type="range" min="0" max="100" step="1" value={opacityLevel}
               onChange={e => setOpacityLevel(+e.target.value)}
-              title="Lighten (<100%) or darken (>100%) all cell colors"
+              title="Lighten all cell colors (100% = current color)"
               style={{ width: 110, accentColor: 'var(--accent)' }}
             />
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', minWidth: 34, textAlign: 'center' }}>
